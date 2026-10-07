@@ -240,6 +240,15 @@ details.decided[open]>summary .ssec::after{content:"⌃"}
 .push .pa button{flex:1;border-radius:10px;padding:9px;font-family:var(--font);font-size:13.5px;font-weight:600;cursor:pointer}
 .scanned{background:#E4F7FB;color:#0A7C90;border-radius:10px;padding:8px 11px;font-size:12.5px;margin:-4px 0 12px;line-height:1.5}
 /* ---------- אזור מנהל ---------- */
+.rejin{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+.rejin .rl{font-size:13px;font-weight:600;color:var(--navy-900);margin-bottom:8px}
+.rchips{display:flex;flex-wrap:wrap;gap:6px}
+.rchips button{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:7px 12px;min-height:38px;
+  font-family:var(--font);font-size:13px;color:var(--navy-900);cursor:pointer}
+.rchips button.on{border-color:#9B2C2C;background:#FDECEC;color:#9B2C2C;font-weight:600}
+.rejin textarea{width:100%;margin-top:10px;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;
+  font-family:var(--font);font-size:14px;resize:none}
+.rejin .rnote-l{display:block;font-size:12px;color:var(--muted);margin-top:8px}
 .stat.cxl{background:#EFEFF3;color:#5C6883}
 .mtag{display:inline-block;font-size:11px;font-weight:600;border-radius:7px;padding:2px 8px;margin-inline-start:6px;
   background:#E4F7FB;color:#0A7C90;vertical-align:middle}
@@ -965,7 +974,6 @@ details.more[open] summary::after{content:"⌃"}
   </div>
   <div class="demo-switch">
     <button onclick="showPush()">הדגמה: תזכורת על יציאה שלא הוחתמה</button>
-    <button onclick="simulateCancel()">הדגמה: עובד מבטל בקשה שהמנהל פתח</button>
   </div>
 
 
@@ -1199,10 +1207,6 @@ details.more[open] summary::after{content:"⌃"}
           <div class="mc-top"><b>בקשות לאישור</b><span class="big" id="mgrBig">0</span></div>
           <span class="mc-sub" id="mgrSub"></span>
           <div class="mchips" id="mgrChips"></div>
-        </button>
-        <button class="mcard" onclick="openSub()">
-          <div class="mc-top"><b>מנהל מחליף</b><span class="c" style="color:#B9C2D4;font-size:18px">‹</span></div>
-          <span class="mc-sub" id="subSub">לא מוגדר. בזמן היעדרות — העברת הבקשות לאישור למחליף</span>
         </button>
         <button class="mcard" onclick="toast('אישור דו״ח נוכחות תקופתי — המסך הקיים, ללא שינוי')">
           <div class="mc-top"><b>אישור דו״ח נוכחות</b><span class="c" style="color:#B9C2D4;font-size:18px">‹</span></div>
@@ -1653,12 +1657,6 @@ function buildDays(count){
       punches:[{in:null, out:"17:07", task:TASKS[1]}],
       fixed:false
     },
-    // תיקון נוכחות שהמנהל החזיר לתיקון — מופיע ב"סטטוסים" תחת "דורש פעולה ממך"
-    "aug27":{
-      name:"27 באוגוסט", dow:DOW[augDow(27)], m:8, d:27, missing:"exit", fixed:true,
-      punches:[{in:"08:02", out:null, prevOut:"19:45", task:TASKS[0], reason:"נשארתי לסיים משימה",
-        status:"fix", fixReason:"השעה אינה סבירה — נא לבדוק", fixNote:"לפי היומן יצאת ב־17:30."}]
-    },
     "aug30":{
       name:"30 באוגוסט", dow:DOW[augDow(30)], m:8, d:30, missing:"both",
       punches:[{in:null, out:null, task:TASKS[0]}],
@@ -1733,10 +1731,7 @@ let pendingReqs = [{
   sentAt:"28 באוגוסט, 09:14", manager:"שרון לוי"
 }];
 let doneReqs = [
-  {type:"מחלה — יום בודד", dates:["8-26"], days:1, status:"fix",
-   full:true, workOnly:true, note:"", doc:null,
-   sentAt:"26 באוגוסט, 07:40", decidedAt:"26 באוגוסט, 11:15", manager:"שרון לוי",
-   fixReason:"חסר מסמך או קבלה", fixNote:"נא לצרף אישור מחלה."},
+
   {type:"מחלה", dates:["8-31"], days:1, status:"approved",
    full:true, workOnly:true, note:"", doc:"אישור.pdf",
    sentAt:"31 באוגוסט, 08:02", decidedAt:"31 באוגוסט, 10:40", manager:"שרון לוי"},
@@ -1980,7 +1975,7 @@ function refreshHome(){
   document.getElementById('missingLink').style.display = open.length ? "flex" : "none";
   document.getElementById('allGood').style.display = open.length ? "none" : "flex";
   // מונים על הכפתורים: ימים להשלמה, ובקשות שממתינות או הוחזרו לתיקון
-  const st = allRequests().filter(x=>x.status === "wait" || x.status === "fix").length;
+  const st = allRequests().filter(x=>x.status === "wait").length;
   const ts = document.getElementById('tbStat');
   ts.textContent = st; ts.style.display = st ? "flex" : "none";
   if(typeof refreshMgrBadge === "function") refreshMgrBadge();
@@ -2092,10 +2087,10 @@ function reqDateLabel(r){
 
 // סטטוסים בניסוח הרמוני
 const REQ_STATUS = {
-  wait: {t:"בהמתנה",     cls:"wait"},
+  wait: {t:"ממתין לאישור", cls:"wait"},
   fix:  {t:"הוחזר לתיקון", cls:"fix"},
-  ok:   {t:"מאושר",      cls:"done"},
-  rej:  {t:"נדחה",       cls:"rej"},
+  ok:   {t:"אושר",       cls:"done"},
+  rej:  {t:"לא אושר",    cls:"rej"},
   canceled: {t:"בוטל ע״י העובד", cls:"cxl"}
 };
 let reqTab = "wait", reqKind = "all", reqNewFirst = true;
@@ -2111,14 +2106,12 @@ var expenses = [
   {id:"EXP-2026-000123", type:"אוכל / אירוח", amount:126.00, date:"1 בספטמבר", m:9, d:1,
    status:"wait", sentAt:"1 בספטמבר, 09:12"},
   {id:"EXP-2026-000121", type:"נסיעות / דלק", amount:210.00, date:"28 באוגוסט", m:8, d:28,
-   status:"ok",   sentAt:"28 באוגוסט, 08:20", decidedAt:"28 באוגוסט, 09:00",
-   transferred:true, transferredAt:"ממשק השכר החודשי, 1 בספטמבר"},
+   status:"ok",   sentAt:"28 באוגוסט, 08:20", decidedAt:"28 באוגוסט, 09:00"},
   {id:"EXP-2026-000120", type:"לינה", amount:62.00, date:"15 באוגוסט", m:8, d:15,
    status:"rej",  sentAt:"15 באוגוסט, 21:30", decidedAt:"16 באוגוסט, 08:10", receipt:"קבלה.jpg",
    reason:"נדרש אישור מראש שלא התקבל", note:"לינה דורשת אישור מראש."},
   {id:"EXP-2026-000119", type:"אוכל / אירוח", amount:96.00, date:"20 באוגוסט", m:8, d:20,
-   status:"fix",  sentAt:"20 באוגוסט, 13:05", decidedAt:"21 באוגוסט, 09:30", receipt:"קבלה.jpg",
-   reason:"הקבלה אינה קריאה", note:"הצילום מטושטש בפינה של הסכום. נא לצלם שוב באור טוב."}
+   status:"wait", sentAt:"20 באוגוסט, 13:05", receipt:"קבלה.jpg"}
 ];
 
 // כל הבקשות במקום אחד: תיקוני נוכחות, היעדרויות והפסקות
@@ -2259,9 +2252,9 @@ function refreshReq(){
   document.querySelector('#scr-req .sortrow').style.display = "none";
 
   const list = all.filter(byKind);
-  const fix  = list.filter(x=>x.status==="fix");
   const wait = list.filter(x=>x.status==="wait");
-  const done = list.filter(x=>x.status==="ok" || x.status==="rej");
+  const ok   = list.filter(x=>x.status==="ok");
+  const rej  = list.filter(x=>x.status==="rej");
 
   // סכום — רק בסינון הוצאות
   const tb = document.getElementById('reqTotal');
@@ -2275,36 +2268,29 @@ function refreshReq(){
   wrap.innerHTML = "";
   const row = x => {
     const st = REQ_STATUS[x.status];
-    const clickable = x.req || x.exp || x.status==="fix";
+    const clickable = x.req || x.exp;
     const r = document.createElement(clickable ? 'button' : 'div');
     r.className = "exp";
     if(!clickable) r.style.cursor = "default";
     r.innerHTML = `<span class="rq-kind">${x.ic}</span>
       <span class="info"><b>${x.kind} · ${x.when}</b><span class="rq-what">${x.what}</span></span>
-      <span class="stat ${st.cls}">${x.status==="fix" ? "לתיקון ‹" : (x.label || st.t)}</span>`;
+      <span class="stat ${st.cls}">${st.t}</span>`;
     if(x.req) r.onclick = ()=>openReq(x.req);
     else if(x.exp) r.onclick = ()=>openExpDetail(x.exp);
-    else if(x.key) r.onclick = ()=>openDay(x.key);
     return r;
   };
-  const sec = (title, items, cls, emptyTxt) => {
+  // שלב ראשון: שלושה מצבים בלבד — ממתין לאישור · אושר · לא אושר
+  const sec = (title, items, emptyTxt) => {
     const h = document.createElement('div');
-    h.className = "ssec" + (cls ? " " + cls : "");
+    h.className = "ssec";
     h.innerHTML = `${title} <span class="n">${items.length}</span>`;
     wrap.appendChild(h);
-    if(!items.length && emptyTxt){ const e = document.createElement('div'); e.className="sempty"; e.textContent = emptyTxt; wrap.appendChild(e); }
+    if(!items.length){ const e = document.createElement('div'); e.className="sempty"; e.textContent = emptyTxt; wrap.appendChild(e); }
     items.forEach(x=>wrap.appendChild(row(x)));
   };
-  if(fix.length) sec("דורש פעולה ממך", fix, "act");
-  sec("ממתין למנהל", wait, "", "אין בקשות שממתינות לאישור");
-  const det = document.createElement('details');
-  det.className = "decided";
-  if(reqTab === "ok" || reqTab === "rej" || (!fix.length && !wait.length)) det.open = true;
-  const sm = document.createElement('summary');
-  sm.innerHTML = `<div class="ssec">הוחלט לאחרונה <span class="n">${done.length}</span></div>`;
-  det.appendChild(sm);
-  done.forEach(x=>det.appendChild(row(x)));
-  wrap.appendChild(det);
+  sec("ממתין לאישור", wait, "אין בקשות שממתינות לאישור");
+  sec("אושר", ok, "אין בקשות שאושרו במחזור");
+  sec("לא אושר", rej, "אין בקשות שלא אושרו");
 }
 
 function missingRow(k){
@@ -3058,7 +3044,7 @@ function openExpDetail(e){
   document.getElementById('edTitle').textContent = e.type;
   document.getElementById('edSub').textContent = e.date + " 2026";
   const tag = document.getElementById('edStat'); tag.className = "stat " + st.cls;
-  tag.textContent = (e.status === "ok" && e.transferred) ? "הועבר לשכר" : st.t;
+  tag.textContent = st.t;
   document.getElementById('edStatTxt').textContent =
     e.status === "wait" ? `ממתינה לאישור של ${EXP_APPROVER}`
     : e.status === "fix" ? `${EXP_APPROVER.split(",")[0]} ביקשה תיקון. אפשר לתקן ולשלוח שוב.`
@@ -3083,7 +3069,6 @@ function openExpDetail(e){
   if(e.status === "wait") add("wait", "ממתין לאישור", EXP_APPROVER);
   if(e.status === "fix")  add("", "הוחזר לתיקון", e.decidedAt || "");
   if(e.status === "ok")   add("", "אושר", e.decidedAt || "");
-  if(e.status === "ok")   add(e.transferred ? "" : "wait", e.transferred ? "הועבר לשכר" : "יועבר לשכר בממשק החודשי", e.transferredAt || "");
   if(e.status === "rej")  add("rej", "נדחה", e.decidedAt || "");
   document.getElementById('edFoot').style.display = (e.status === "wait" || e.status === "fix") ? "block" : "none";
   document.getElementById('edFix').style.display = e.status === "fix" ? "block" : "none";
@@ -3799,10 +3784,8 @@ function setRole(m){
   closeSheet(); show('home');
 }
 const DEC_REASONS = [
-  {code:"R-01", kind:"fix", text:"חסר מסמך או קבלה",            note:false},
-  {code:"R-02", kind:"fix", text:"הפרטים אינם תואמים למסמך",     note:true},
-  {code:"R-03", kind:"fix", text:"סוג הדיווח אינו מתאים",        note:false},
-  {code:"R-04", kind:"fix", text:"השעה אינה סבירה — נא לבדוק",   note:true},
+  {code:"D-05", kind:"rej", text:"חסר מסמך",                     note:false},
+  {code:"D-06", kind:"rej", text:"השעה אינה סבירה",              note:true},
   {code:"D-01", kind:"rej", text:"לא אושר מראש",                 note:true},
   {code:"D-02", kind:"rej", text:"חריגה מהיתרה או מהתקרה",       note:false},
   {code:"D-03", kind:"rej", text:"התאריך אינו מתאים לצרכי הצוות", note:true},
@@ -3823,10 +3806,6 @@ let MGR = [
   {id:"R7", emp:"יוסי אברהם", eid:"9741", kind:"absence",    when:"12–16 באוקטובר", what:"חופשה · 5 ימי עבודה",
    note:"", impact:"יתרת חופשה 3 ← ‎-2 — חריגה מהיתרה", warn:true, att:null, status:"wait", ord:12,
    team:"באותם ימים נעדרים 2 מתוך 6 בצוות — דנה לוי, אורי כץ", teamWarn:true},
-  // בקשה שהוחזרה לתיקון ונשלחה מחדש — מסומנת, עם מה שהשתנה
-  {id:"R8", emp:"נועה ברק",   eid:"9457", kind:"absence",    when:"20 באוקטובר", what:"מחלה · יום אחד", ord:20,
-   note:"צירפתי אישור", impact:"יתרת מחלה 8 ← 7", warn:false, att:"אישור מחלה.pdf", status:"wait",
-   resent:true, changes:"נוסף מסמך: אישור מחלה.pdf", team:"באותו יום לא נעדר אף אחד מהצוות", teamWarn:false},
   // טופל לאחרונה
   {id:"R9", emp:"אורי כץ",    eid:"7365", kind:"attendance", when:"24 בספטמבר", what:"השלמת כניסה · 08:15", ord:-6,
    note:"", impact:"סה״כ היום 8:40", warn:false, att:null, status:"ok", decidedAt:"25 בספטמבר, 09:02"},
@@ -3855,6 +3834,58 @@ function renderMgr(){
   if(flagged) ch.innerHTML += `<span class="mchip warn">חריגות · ${flagged}</span>`;
 }
 // תצוגה ראשית: כל הבקשות ברשימה אחת, לפי תאריך — הוותיקה והקרובה קודם. אישור מהיר מתוך הרשימה
+// כרטיס בקשה אחד לכל המסכים: כל המידע בכרטיס, "אישור" או "דחייה". הסיבה נבחרת בתוך הכרטיס
+let rejOpen = null, rejCode = null, rejNote = "";
+function reqCard(r, showName, onDone){
+  const c = document.createElement('div');
+  c.className = "rcard";
+  const st = REQ_STATUS[r.status];
+  const sub = showName ? `<span style="display:block;font-size:12.5px;color:var(--muted);font-weight:400">${KIND_LBL[r.kind]} · ${r.when}</span>` : "";
+  let html = `<div class="rh"><span class="rq-kind">${KIND_IC[r.kind]}</span>
+      <b>${showName ? r.emp : KIND_LBL[r.kind] + " · " + r.when}${sub}</b>
+      ${r.status!=="wait" ? `<span class="stat ${st.cls}">${st.t}</span>` : ""}</div>
+    <div class="rw">${r.what}</div>
+    ${r.note ? `<div class="rn">הערת העובד: ${r.note}</div>` : ""}
+    <div class="imp ${r.warn?'warn':''}">${r.impact}</div>
+    ${r.att ? `<button class="att" onclick="toast('תצוגת ${r.att}')">▤ ${r.att}</button>` : ""}`;
+  if(r.status !== "wait"){
+    html += `<div class="rdone">${r.decidedAt ? r.decidedAt + " · " : ""}${r.reasonText ? "סיבה: " + r.reasonText : "ההחלטה נשלחה לעובד"}</div>`;
+  }else if(rejOpen === r.id){
+    const reasons = DEC_REASONS.filter(x=>x.kind==="rej");
+    const rs = reasons.find(x=>x.code===rejCode);
+    html += `<div class="rejin"><div class="rl">סיבת הדחייה</div>
+      <div class="rchips">${reasons.map(x=>`<button data-code="${x.code}" class="${x.code===rejCode?'on':''}">${x.text}</button>`).join("")}</div>
+      <textarea rows="2" placeholder="הערה לעובד${rs && rs.note ? ' — חובה' : ' (לא חובה)'}">${rejNote}</textarea>
+      <span class="rnote-l">העובד יראה את הסיבה ואת ההערה, ויוכל להגיש בקשה חדשה.</span>
+      <div class="ractions"><button class="ra-rej rej-go" style="background:#9B2C2C;color:#fff;border:0" disabled>דחיית הבקשה</button>
+        <button class="ra-cancel" style="background:#fff;color:var(--navy-800);border:1.5px solid var(--line)">ביטול</button></div></div>`;
+  }else{
+    html += `<div class="ractions"><button class="ra-ok">אישור</button><button class="ra-rej">דחייה</button></div>`;
+  }
+  c.innerHTML = html;
+  if(r.status === "wait"){
+    if(rejOpen === r.id){
+      const ta = c.querySelector('textarea'), btn = c.querySelector('.rej-go');
+      const check = ()=>{ const rs = DEC_REASONS.find(x=>x.code===rejCode);
+        btn.disabled = !rs || (rs.note && ta.value.trim().length < 2); };
+      c.querySelectorAll('.rchips button').forEach(b=>b.onclick = ()=>{
+        rejCode = b.dataset.code; rejNote = ta.value; onDone(); });
+      ta.oninput = ()=>{ rejNote = ta.value; check(); }; check();
+      btn.onclick = ()=>{ const rs = DEC_REASONS.find(x=>x.code===rejCode);
+        r.status = "rej"; r.reasonText = rs.text + (rejNote.trim() ? " — " + rejNote.trim() : ""); r.decidedAt = "היום, 12:04";
+        rejOpen = null; rejCode = null; rejNote = ""; refreshMgrBadge(); onDone();
+        toast(`נדחה — ${r.emp}. העובד יראה את הסיבה`); };
+      c.querySelector('.ra-cancel').onclick = ()=>{ rejOpen = null; rejCode = null; rejNote = ""; onDone(); };
+    }else{
+      c.querySelector('.ra-ok').onclick = ()=>{ r.status = "ok"; r.decidedAt = "היום, 12:04"; refreshMgrBadge(); onDone();
+        toast(`אושר — ${r.emp}, ${KIND_LBL[r.kind]}`); };
+      c.querySelector('.ra-rej').onclick = ()=>{ rejOpen = r.id; rejCode = null; rejNote = ""; onDone(); };
+    }
+  }
+  return c;
+}
+
+// תצוגה ראשית: כל הבקשות ברשימה אחת, לפי תאריך — הוותיקה והקרובה קודם
 function renderMgrList(){
   const tw = document.getElementById('mgrView');
   tw.innerHTML = "";
@@ -3871,29 +3902,7 @@ function renderMgrList(){
   const list = pending().filter(r=>mgrKind==="all" || r.kind===mgrKind).sort((a,b)=>a.ord-b.ord);
   const wrap = document.getElementById('mgrRows'); wrap.innerHTML = "";
   if(!list.length){ wrap.innerHTML = '<div class="empty" style="text-align:center;padding:32px;color:var(--muted)">אין בקשות שממתינות לך. הכול טופל.</div>'; renderDecided(wrap); return; }
-  list.forEach(r=>{
-    const c = document.createElement('div');
-    c.className = "rcard"; c.style.cursor = "pointer";
-    c.innerHTML = `<div class="rh"><span class="rq-kind">${KIND_IC[r.kind]}</span>
-        <b>${r.emp}${r.resent ? '<span class="mtag">נשלח מחדש</span>' : ''}<span style="display:block;font-size:12.5px;color:var(--muted);font-weight:400">${KIND_LBL[r.kind]} · ${r.when}</span></b>
-        <span style="color:#B9C2D4;font-size:18px">‹</span></div>
-      <div class="rw">${r.what}</div>
-      ${r.changes ? `<div class="imp" style="background:#E4F7FB;color:#0A7C90">מה השתנה: ${r.changes}</div>` : ""}
-      <div class="imp ${r.warn?'warn':''}" ${r.changes?'style="margin-top:6px"':''}>${r.impact}</div>
-      ${r.team ? `<div class="imp ${r.teamWarn?'warn':''}" style="margin-top:6px">${r.team}</div>` : ""}
-      <div class="ractions">${r.warn
-        ? `<button class="ra-fix" style="color:var(--orange-600);border-color:#F3DFBC">חריגה — לבדיקה ‹</button>`
-        : `<button class="ra-ok">אישור</button><button class="ra-fix" style="color:var(--navy-800);border-color:var(--line)">פרטים</button>`}</div>`;
-    c.onclick = e=>{
-      if(e.target.closest('.ra-ok')){
-        r.status="ok"; refreshMgrBadge(); renderMgrList();
-        showUndo(`אושר — ${r.emp}, ${KIND_LBL[r.kind]}`, ()=>{ r.status="wait"; refreshMgrBadge(); renderMgrList(); });
-        return;
-      }
-      mgrOnly = r.id; mgrEmp = r.eid; show('mgrEmp');
-    };
-    wrap.appendChild(c);
-  });
+  list.forEach(r=>wrap.appendChild(reqCard(r, true, renderMgrList)));
   renderDecided(wrap);
 }
 // טופל לאחרונה — מקופל. כולל בקשות שהעובד ביטל
@@ -3969,35 +3978,12 @@ function renderMgrEmp(){
   document.getElementById('barTitle').textContent = reqs[0] ? reqs[0].emp : "";
   document.getElementById('barSub').textContent = reqs[0] ? `מספר עובד ${reqs[0].eid}` : "";
   const wrap = document.getElementById('mgrReqs'); wrap.innerHTML = "";
-  reqs.forEach(r=>{
-    const c = document.createElement('div');
-    c.className = "rcard";
-    const st = REQ_STATUS[r.status];
-    c.innerHTML = (r.status==="canceled" ? `<div class="mbanner warn" style="margin:0 0 10px">העובד ביטל את הבקשה ב־${r.canceledAt}. אין צורך בפעולה.</div>` : "") +
-      `<div class="rh"><span class="rq-kind">${KIND_IC[r.kind]}</span><b>${KIND_LBL[r.kind]} · ${r.when}${r.resent ? '<span class="mtag">נשלח מחדש</span>' : ''}</b>
-        ${r.status!=="wait" ? `<span class="stat ${st.cls}">${st.t}</span>` : ""}</div>
-      <div class="rw">${r.what}</div>
-      ${r.note ? `<div class="rn">הערת העובד: ${r.note}</div>` : ""}
-      ${r.changes ? `<div class="imp" style="background:#E4F7FB;color:#0A7C90">מה השתנה מאז ההחזרה לתיקון: ${r.changes}</div>` : ""}
-      <div class="imp ${r.warn?'warn':''}" ${r.changes?'style="margin-top:6px"':''}>${r.impact}</div>
-      ${r.team ? `<div class="imp ${r.teamWarn?'warn':''}" style="margin-top:6px">${r.team}</div>` : ""}
-      ${r.att ? `<button class="att" onclick="toast('תצוגת ${r.att}')">▤ ${r.att}</button>` : ""}
-      ${r.status==="wait" ? `<div class="ractions">
-        <button class="ra-ok">אישור</button><button class="ra-fix">החזרה לתיקון</button><button class="ra-rej">דחייה</button></div>`
-        : r.status==="canceled" ? "" : `<div class="rdone">${r.decidedAt ? r.decidedAt + " · " : ""}${r.reasonText ? "סיבה: " + r.reasonText : "ההחלטה נשלחה לעובד"}</div>`}`;
-    if(r.status==="wait"){
-      c.querySelector('.ra-ok').onclick = ()=>{ if(stale(r)) return; r.status="ok"; refreshMgrBadge(); renderMgrEmp(); toast("אושר. העובד יראה זאת ב\"סטטוסים\""); };
-      c.querySelector('.ra-fix').onclick = ()=>{ if(!stale(r)) openDec(r,"fix"); };
-      c.querySelector('.ra-rej').onclick = ()=>{ if(!stale(r)) openDec(r,"rej"); };
-    }
-    wrap.appendChild(c);
-  });
+  reqs.forEach(r=>wrap.appendChild(reqCard(r, false, renderMgrEmp)));
 }
 function openDec(r, kind){
   dec = {r, kind, code:null};
-  document.getElementById('decTitle').textContent = kind==="fix" ? "החזרה לתיקון" : "דחיית בקשה";
-  document.getElementById('decSub').textContent = kind==="fix"
-    ? "הבקשה תחזור לעובד לתיקון ושליחה מחדש." : "דחייה היא החלטה סופית. העובד יראה את הסיבה.";
+  document.getElementById('decTitle').textContent = "לא לאשר את הבקשה";
+  document.getElementById('decSub').textContent = "העובד יראה את הסיבה, ויוכל להגיש בקשה חדשה.";
   document.getElementById('decNote').value = "";
   const body = document.getElementById('decBody'); body.innerHTML = "";
   DEC_REASONS.filter(x=>x.kind===kind).forEach(x=>{
@@ -4018,7 +4004,7 @@ function paintDec(){
   const note = document.getElementById('decNote').value.trim();
   document.getElementById('decNoteLbl').innerHTML = "הערה לעובד" + (rs && rs.note ? ' <span class="req">*</span>' : ' <span style="font-weight:400;color:var(--muted)">(לא חובה)</span>');
   const btn = document.getElementById('decBtn');
-  btn.textContent = dec.kind==="fix" ? "החזרה לתיקון" : "דחייה";
+  btn.textContent = "לא לאשר";
   btn.disabled = !rs || (rs.note && note.length < 2);
 }
 function confirmDec(){
@@ -4027,7 +4013,7 @@ function confirmDec(){
   dec.r.status = dec.kind; dec.r.reasonText = rs.text;
   const k = dec.kind; dec = null;
   closeSheet(); refreshMgrBadge(); renderMgrEmp();
-  toast(k==="fix" ? "הבקשה הוחזרה לעובד לתיקון" : "הבקשה נדחתה");
+  toast("הבקשה לא אושרה. העובד יראה את הסיבה");
 }
 // בקשה שהשתנתה אצל העובד בזמן שהמנהל צופה בה — הפעולה נחסמת והמסך מתעדכן
 function stale(r){
@@ -4102,6 +4088,11 @@ function pushNow(){
   if(i>-1){ d.punches[i].out = "18:30"; d.fixed = true; }
   refreshHome(); toast("היציאה נרשמה ב־18:30");
 }
+// לחיצה על גוף ההתראה (לא על הכפתורים) פותחת את מסך היום
+document.getElementById('push').addEventListener('click', e=>{
+  if(e.target.closest('button')) return;
+  document.getElementById('push').classList.remove('on'); openDay('sep1');
+});
 function pushLater(){ document.getElementById('push').classList.remove('on'); toast("נזכיר לך מחר בבוקר"); }
 
 /* ---------------- toast ---------------- */
