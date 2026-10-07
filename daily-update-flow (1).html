@@ -1,0 +1,4119 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>העדכון היומי במובייל — הצעת UX</title>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-900:#2D437C;
+  --navy-800:#36508B;
+  --navy-700:#415C9B;
+  --navy-100:#EDF1F9;
+  --hero-navy:#354D89;
+  --orange:#F0A02E;
+  --orange-600:#DE8E1C;
+  --orange-050:#FDF3E3;
+  --ink:#22304F;
+  --muted:#5E6A84;
+  --line:#E3E7EF;
+  --surface:#FFFFFF;
+  --bg:#F5F7FA;
+  --weekend:#B23A48;
+  --radius:14px;
+  --font:"Assistant","Rubik","Segoe UI",system-ui,-apple-system,"Arial Hebrew",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font);
+  background:#E8EBF2;
+  color:var(--ink);
+  display:flex;justify-content:center;align-items:flex-start;
+  padding:28px 16px 60px;
+  min-height:100vh;
+}
+.stage{width:100%;max-width:392px}
+.stage-note{font-size:13px;color:#5C6883;text-align:center;margin:0 0 14px;line-height:1.5}
+.phone{
+  width:100%;height:760px;background:var(--surface);
+  border-radius:30px;overflow:hidden;position:relative;
+  box-shadow:0 18px 50px rgba(30,44,80,.22);
+  display:flex;flex-direction:column;
+}
+/* ---------- status bar ---------- */
+.statusbar{
+  background:#2D437C;color:#fff;height:38px;flex:0 0 38px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;font-size:13px;font-weight:600;letter-spacing:.2px;
+}
+.statusbar .dots{display:flex;gap:3px;align-items:center}
+.statusbar .dots i{width:3px;height:9px;background:#fff;border-radius:1px;opacity:.85;display:block}
+/* ---------- app bar ---------- */
+.appbar{
+  background:var(--navy-900);color:#fff;padding:10px 16px 16px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex:0 0 auto;
+}
+.appbar h1{font-size:17px;font-weight:600;margin:0}
+.appbar .sub{font-size:13px;opacity:.78;margin-top:2px}
+.iconbtn{
+  background:transparent;border:0;color:inherit;font-size:19px;line-height:1;
+  padding:6px;cursor:pointer;border-radius:8px;
+}
+.iconbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.plusbtn{
+  width:34px;height:34px;border-radius:10px;border:1.5px solid rgba(255,255,255,.55);
+  background:rgba(255,255,255,.1);color:#fff;font-size:22px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font);padding:0 0 2px;
+}
+.plusbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+/* ---------- body ---------- */
+.body{flex:1;overflow-y:auto;background:var(--bg);position:relative}
+.screen{display:none;padding:0 0 24px}
+#scr-home{padding:0;min-height:100%;position:relative;padding-bottom:70px}
+#scr-month{padding:0;min-height:100%}
+#scr-month.on{display:flex;flex-direction:column}
+#scr-month .cal{flex:1}
+.screen.on{display:block}
+/* ---------- home ---------- */
+.hero{
+  background:#354D89;color:#fff;padding:14px 0 74px;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:"";position:absolute;top:-40%;left:-30%;width:130%;height:120%;
+  background:#3A5791;transform:rotate(-28deg);transform-origin:top left;pointer-events:none;
+}
+.hero > *{position:relative;z-index:1}
+.hamburger{
+  position:absolute;top:8px;right:16px;z-index:2;background:transparent;border:0;
+  padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:4px;align-items:flex-end;
+}
+.hamburger i{display:block;height:2px;background:#fff;border-radius:2px}
+.hamburger i:nth-child(1){width:20px}
+.hamburger i:nth-child(2){width:14px}
+.hamburger i:nth-child(3){width:9px}
+.hero-clock{
+  text-align:center;font-size:44px;font-weight:400;letter-spacing:1px;line-height:1.1;margin-top:22px;
+}
+.hero-date{text-align:center;font-size:15px;opacity:.92;margin-top:2px}
+.dials{display:flex;justify-content:center;gap:8px;margin:22px 0 4px}
+.dial{
+  position:relative;width:132px;height:132px;background:transparent;border:0;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.dial .ring{
+  position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,255,255,.45);
+}
+.dial .mid{
+  position:absolute;inset:14px;border-radius:50%;
+}
+.dial .core{
+  position:relative;z-index:2;width:78px;height:78px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font);font-size:15px;font-weight:500;color:#1E3358;
+}
+.dial-out-state .ring{border-color:#3CC8E6}
+.dial-out-state .mid{background:#159FC9}
+.dial-out-state .core{background:#08C7E5}
+.dial-in-state .ring{border-color:#EB9F35}
+.dial-in-state .mid{background:#8C7B63}
+.dial-in-state .core{background:#EB9F35}
+.lastrep{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  margin:18px 20px 0;font-size:12.5px;color:#9FD8EA;line-height:1.5;text-align:center;
+}
+.lastrep .pin{font-size:13px;flex:0 0 auto}
+.daily-link{
+  display:flex;align-items:center;gap:6px;margin:12px auto 0;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
+  border-radius:20px;color:#fff;font-family:var(--font);font-size:14px;
+  font-weight:600;cursor:pointer;padding:9px 16px;
+}
+.daily-link .dl-chev{font-size:16px;opacity:.75}
+.hero-card{
+  background:#fff;border-radius:16px;margin:-52px 14px 0;position:relative;z-index:2;
+  padding:16px 16px 4px;box-shadow:0 6px 18px rgba(30,44,80,.12);
+}
+.hc-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hc-num b{display:block;font-size:33px;font-weight:600;color:var(--navy-900);line-height:1.1}
+.hc-num span{font-size:13px;color:var(--navy-900)}
+.donut{position:relative;width:96px;height:96px;flex:0 0 96px}
+.donut svg{width:100%;height:100%;display:block}
+.donut-lbl{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:5px;
+  font-size:15px;font-weight:600;color:#1E3358;direction:ltr;
+}
+.donut-lbl .tri{
+  width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;
+  border-top:9px solid #E03B3B;display:inline-block;
+}
+.hc-bot{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border-top:1px solid var(--line);margin-top:14px;padding:12px 0;
+}
+.hc-missing{
+  background:transparent;border:0;padding:0;display:flex;align-items:center;gap:8px;
+  font-family:var(--font);font-size:14px;color:var(--navy-900);cursor:pointer;
+}
+.hc-missing .hc-chev{color:#B9C2D4;font-size:18px;font-weight:600;margin-inline-start:2px}
+.hc-missing .count{
+  background:#EB9F35;color:#fff;border-radius:50%;width:23px;height:23px;
+  display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;
+}
+.hc-req{font-size:13.5px;color:var(--navy-900)}
+.tabbar{
+  display:flex;margin-top:auto;padding:14px 0 6px;background:#fff;
+  border-top:1px solid var(--line);position:absolute;bottom:0;left:0;right:0;
+}
+.tabbar button{
+  flex:1;background:transparent;border:0;cursor:pointer;font-family:var(--font);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  font-size:12px;color:var(--navy-800);
+}
+.tabbar .tico{font-size:19px;position:relative;display:flex;color:var(--navy-800)}
+.tabbar button{position:relative;justify-content:flex-start}
+.tabbar{padding:10px 0 8px}
+.tbadge{
+  position:absolute;top:-6px;left:-12px;background:var(--orange);color:#fff;border-radius:9px;
+  min-width:18px;height:18px;padding:0 5px;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font);
+}
+.tabbar button span:last-child{font-size:11.5px;text-align:center;line-height:1.2}
+.missbar{
+  display:flex;align-items:center;gap:10px;width:calc(100% - 20px);margin:10px 10px 0;
+  background:var(--orange-050);border:1px solid #F3DFBC;border-radius:12px;padding:11px 13px;
+  font-family:var(--font);cursor:pointer;text-align:right;color:#8A6E3C;font-size:13.5px;font-weight:600;
+}
+.missbar .n{background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex:0 0 22px}
+.missbar .c{margin-inline-start:auto;color:var(--orange-600);font-size:17px}
+#scr-sum{padding:12px 12px 24px}
+/* ---------- נגישות ---------- */
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--navy-800);outline-offset:2px}
+.kchip{min-height:40px}
+.tab{min-height:40px}
+.iconbtn{min-width:44px;min-height:44px}
+.legend{font-size:12px}
+.daytag{font-size:10px}
+.erow .chk{flex:0 0 28px;height:28px}
+/* ---------- מצב תקין ---------- */
+.hc-ok{display:flex;align-items:center;gap:8px;font-size:14px;color:#2F8F5B;font-weight:600}
+.okbar{margin:10px 10px 0;background:#EAF6EF;border:1px solid #C9E8D5;border-radius:12px;padding:11px 13px;
+  font-size:13.5px;font-weight:600;color:#2F8F5B}
+/* ---------- החזרה לתיקון / דחייה ---------- */
+.rejbox{background:#FDECEC;border:1px solid #F5C6C6;border-radius:11px;padding:12px 13px;margin:0 0 12px;
+  font-size:13px;color:#9B2C2C;line-height:1.5}
+.rejbox b{display:block;margin-bottom:3px}
+.rejbox.fix{background:#E4F7FB;border-color:#B9E7F1;color:#0A7C90}
+.rejbox .rsn{display:block;font-weight:600;font-size:14px;margin-bottom:3px}
+.rejbox .rnote{display:block;opacity:.9}
+.chg{padding:9px 0;border-top:1px solid var(--line)}
+.chg .cf{display:block;font-size:12px;color:var(--muted)}
+.chg .cv{display:block;font-size:14px;color:var(--navy-900);margin-top:2px}
+.chg .cv s{color:var(--muted)}
+.blockstrip.fixs{background:#E4F7FB;border-color:#B9E7F1}
+.blockstrip.fixs .bs-i{background:#0A7C90}
+.blockstrip.fixs .bs-t{color:#0A7C90}
+/* ---------- סטטוסים במקטעים ---------- */
+.ssec{display:flex;align-items:center;gap:8px;margin:16px 14px 2px;font-size:13px;font-weight:600;color:var(--navy-900)}
+.ssec .n{background:var(--navy-100);color:var(--navy-800);border-radius:10px;padding:1px 8px;font-size:12px}
+.ssec.act{color:#0A7C90}.ssec.act .n{background:#E4F7FB;color:#0A7C90}
+details.decided>summary{list-style:none;cursor:pointer}
+details.decided>summary::-webkit-details-marker{display:none}
+details.decided>summary .ssec::after{content:"⌄";margin-inline-start:auto;color:var(--muted)}
+details.decided[open]>summary .ssec::after{content:"⌃"}
+.sempty{margin:6px 14px 0;font-size:12.5px;color:var(--muted)}
+/* ---------- ביטול אחרי אישור ---------- */
+.undo{position:absolute;bottom:18px;left:16px;right:16px;background:var(--navy-900);color:#fff;border-radius:12px;
+  padding:11px 14px;font-size:14px;z-index:21;display:none;align-items:center;gap:10px}
+.undo.on{display:flex}
+.undo button{margin-inline-start:auto;background:none;border:0;color:#FFD48A;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer}
+/* ---------- התראת תזכורת (הדגמה) ---------- */
+.push{position:absolute;top:44px;left:10px;right:10px;background:rgba(255,255,255,.97);border-radius:16px;z-index:30;
+  box-shadow:0 10px 30px rgba(24,34,60,.3);padding:12px 14px;transform:translateY(-140%);transition:transform .3s ease}
+.push.on{transform:translateY(0)}
+.push .ph{font-size:11.5px;color:var(--muted);display:flex;justify-content:space-between}
+.push b{display:block;font-size:14.5px;color:var(--ink);margin-top:4px}
+.push p{margin:2px 0 10px;font-size:13px;color:var(--muted)}
+.push .pa{display:flex;gap:8px}
+.push .pa button{flex:1;border-radius:10px;padding:9px;font-family:var(--font);font-size:13.5px;font-weight:600;cursor:pointer}
+.scanned{background:#E4F7FB;color:#0A7C90;border-radius:10px;padding:8px 11px;font-size:12.5px;margin:-4px 0 12px;line-height:1.5}
+/* ---------- אזור מנהל ---------- */
+.stat.cxl{background:#EFEFF3;color:#5C6883}
+.mtag{display:inline-block;font-size:11px;font-weight:600;border-radius:7px;padding:2px 8px;margin-inline-start:6px;
+  background:#E4F7FB;color:#0A7C90;vertical-align:middle}
+.mbanner{margin:12px 12px 0;border-radius:12px;padding:11px 13px;font-size:13px;line-height:1.5;
+  background:var(--navy-100);color:var(--navy-900)}
+.mbanner.warn{background:#EFEFF3;color:#5C6883}
+.mbanner b{font-weight:600}
+.drow{display:flex;align-items:center;gap:10px;width:calc(100% - 24px);margin:6px 12px 0;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:10px 12px;font-family:var(--font);text-align:right;cursor:pointer}
+.drow .ei{flex:1}.drow b{display:block;font-size:13.5px;color:var(--navy-900)}.drow span{font-size:12px;color:var(--muted)}
+.opt{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.opt button{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:8px 14px;font-family:var(--font);font-size:13.5px;color:var(--navy-900);cursor:pointer;min-height:40px}
+.opt button.on{border-color:var(--navy-800);background:var(--navy-100);font-weight:600}
+.hero-go{display:block;margin:10px auto 0;background:none;border:0;color:#fff;font-family:var(--font);
+  font-size:14.5px;cursor:pointer;opacity:.95;text-decoration:underline;text-underline-offset:4px}
+.mcard{background:#fff;border:1px solid var(--line);border-radius:var(--radius);margin:12px;padding:16px;
+  font-family:var(--font);text-align:right;width:calc(100% - 24px);cursor:pointer;display:block}
+.mcard .mc-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mcard .mc-top b{font-size:16px;color:var(--navy-900)}
+.mcard .big{font-size:30px;font-weight:600;color:var(--orange-600);line-height:1}
+.mcard .mc-sub{display:block;font-size:12.5px;color:var(--muted);margin-top:6px}
+.mchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.mchip{background:var(--navy-100);color:var(--navy-800);border-radius:14px;padding:5px 11px;font-size:12.5px;font-weight:600}
+.mchip.warn{background:var(--orange-050);color:var(--orange-600);box-shadow:inset 0 0 0 1px #F3DFBC}
+.erow{display:flex;align-items:center;gap:12px;width:calc(100% - 24px);margin:8px 12px 0;background:#fff;
+  border:1px solid var(--line);border-radius:var(--radius);padding:12px;font-family:var(--font);text-align:right;cursor:pointer}
+.erow .chk{flex:0 0 24px;height:24px;border-radius:50%;border:2px solid #9AA4B8;background:#fff;cursor:pointer;padding:0}
+.erow .chk.on{background:var(--navy-800);border-color:var(--navy-800);box-shadow:inset 0 0 0 4px #fff}
+.erow .ei{flex:1}
+.erow .ei b{display:block;font-size:14.5px;color:var(--navy-900)}
+.erow .ei span{font-size:12px;color:var(--muted)}
+.erow .flag{font-size:11px;font-weight:600;color:var(--orange-600);background:var(--orange-050);border-radius:7px;padding:3px 8px}
+.bulkbar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 12px 14px;margin-top:14px}
+.selall{display:flex;align-items:center;gap:8px;background:none;border:0;font-family:var(--font);color:var(--navy-800);font-size:13px;font-weight:600;cursor:pointer;padding:10px 14px 0}
+.rcard{background:#fff;border:1px solid var(--line);border-radius:var(--radius);margin:10px 12px 0;padding:14px}
+.rcard .rh{display:flex;align-items:center;gap:10px}
+.rcard .rh b{flex:1;font-size:14.5px;color:var(--navy-900)}
+.rcard .rw{font-size:13.5px;color:var(--navy-900);margin-top:8px;unicode-bidi:plaintext}
+.rcard .rn{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.5}
+.rcard .imp{margin-top:10px;background:var(--navy-100);border-radius:10px;padding:9px 11px;font-size:12.5px;color:var(--navy-900);line-height:1.5}
+.rcard .imp.warn{background:var(--orange-050);color:#8A6E3C;box-shadow:inset 0 0 0 1px #F3DFBC}
+.rcard .att{display:inline-block;margin-top:8px;font-size:12.5px;color:var(--navy-800);font-weight:600;text-decoration:underline;cursor:pointer;background:none;border:0;font-family:var(--font);padding:0}
+.ractions{display:flex;gap:8px;margin-top:12px}
+.ractions button{flex:1;border-radius:10px;padding:11px 6px;font-family:var(--font);font-size:13.5px;font-weight:600;cursor:pointer}
+.ra-ok{background:var(--navy-800);color:#fff;border:0}
+.ra-fix{background:#fff;color:#0A7C90;border:1.5px solid #B9E7F1}
+.ra-rej{background:#fff;color:#9B2C2C;border:1.5px solid #F5C6C6}
+.rdone{margin-top:10px;font-size:12.5px;color:var(--muted)}
+/* פעולה ראשית גלויה בלוח: דיווח היעדרות */
+.actbar{
+  position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);
+  padding:10px 12px 14px;box-shadow:0 -4px 14px rgba(30,44,80,.06);
+}
+.actbar .primary{display:flex;align-items:center;justify-content:center;gap:8px}
+.actbar .ab-note{display:block;text-align:center;font-size:12px;color:var(--muted);margin-top:8px}
+/* פעולות היום — גלויות, לא בתפריט */
+.addgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 12px}
+.atile{
+  background:#fff;border:1.5px solid var(--navy-800);border-radius:12px;padding:12px;
+  text-align:right;font-family:var(--font);cursor:pointer;display:flex;flex-direction:column;gap:3px;
+}
+.atile b{font-size:14.5px;color:var(--navy-900);font-weight:600}
+.atile span{font-size:11.5px;color:var(--muted);line-height:1.35}
+.atile.locked{opacity:.45;border-color:var(--line);cursor:default}
+#scr-sum .sumpanel{position:static;border-radius:16px;box-shadow:none;border:1px solid var(--line);background:#fff;padding:6px 10px 14px}
+/* ---------- missing-report list ---------- */
+.missing-card{
+  margin:12px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;
+}
+.mrow{
+  display:flex;align-items:center;gap:12px;padding:13px 14px;border-top:1px solid var(--line);
+  cursor:pointer;background:#fff;width:100%;border-left:0;border-right:0;border-bottom:0;
+  font-family:var(--font);text-align:right;
+}
+.mrow:first-child{border-top:0}
+.mrow .info{flex:1}
+.mrow .info b{display:block;font-size:14.5px;color:var(--navy-900);font-weight:600}
+.mrow .info span{font-size:12.5px;color:var(--muted)}
+.mrow .cta{
+  background:var(--navy-800);color:#fff;border-radius:9px;padding:8px 13px;
+  font-size:13.5px;font-weight:600;flex:0 0 auto;
+}
+.mrow .cta.done{background:var(--navy-100);color:var(--navy-800)}
+.mrow.locked{opacity:.6;cursor:default}
+.mrow .cta.closed{background:#EFEFF3;color:#5C6883}
+.mrow .cta.wait{
+  background:repeating-linear-gradient(-45deg,#EDF1F9,#EDF1F9 4px,#F7F9FC 4px,#F7F9FC 8px);
+  color:var(--navy-800);box-shadow:inset 0 0 0 1px #D5DDEC;
+}
+.mrow .cta.rej{background:#FDECEC;color:#9B2C2C}
+.mrow .cta.fix{background:#E4F7FB;color:#0A7C90;box-shadow:inset 0 0 0 1px #B9E7F1}
+.mrow .mr-c{color:#B9C2D4;font-size:18px;font-weight:600;flex:0 0 auto}
+.mrow .cancel{
+  background:transparent;border:0;color:var(--navy-800);font-family:var(--font);
+  font-size:13px;font-weight:600;cursor:pointer;padding:8px 6px;flex:0 0 auto;
+  text-decoration:underline;text-underline-offset:3px;
+}
+.link-all{
+  display:block;width:100%;background:#FAFBFD;border:0;border-top:1px solid var(--line);
+  padding:12px;font-family:var(--font);font-size:13.5px;font-weight:600;color:var(--navy-800);cursor:pointer;
+}
+.tabs{display:flex;gap:6px;padding:12px 12px 2px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;background:#fff;border:1.5px solid var(--line);border-radius:20px;
+  padding:8px 14px;font-family:var(--font);font-size:13.5px;color:var(--navy-900);cursor:pointer;
+}
+.tab.on{background:var(--navy-800);border-color:var(--navy-800);color:#fff;font-weight:600}
+.tab .n{font-weight:700;margin-inline-start:4px}
+.mrow .rq-what{unicode-bidi:plaintext;display:block}
+.sortrow{padding:8px 12px 0}
+.sortchip{
+  display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--line);
+  border-radius:18px;padding:7px 13px;font-family:var(--font);font-size:12.5px;
+  color:var(--navy-800);font-weight:600;cursor:pointer;
+}
+.kindrow{display:flex;gap:7px;padding:8px 12px 2px;overflow-x:auto;scrollbar-width:none}
+.kindrow::-webkit-scrollbar{display:none}
+.kchip{
+  flex:0 0 auto;background:#fff;border:1.5px solid var(--line);border-radius:16px;
+  padding:6px 12px;font-family:var(--font);font-size:12.5px;color:var(--navy-800);cursor:pointer;
+}
+.kchip.on{border-color:var(--navy-800);background:var(--navy-100);font-weight:600}
+.totalbar{
+  margin:10px 12px 0;background:var(--navy-100);border-radius:12px;padding:11px 13px;
+  display:flex;justify-content:space-between;align-items:baseline;
+}
+.totalbar span{font-size:13px;color:var(--navy-800)}
+.totalbar b{font-size:18px;font-weight:600;color:var(--navy-900);direction:ltr}
+.newbtn{
+  display:block;width:calc(100% - 24px);margin:18px 12px 0;background:#fff;
+  border:1.5px solid var(--navy-800);border-radius:12px;padding:14px;
+  font-family:var(--font);font-size:15px;color:var(--navy-800);font-weight:600;cursor:pointer;
+}
+.exp{
+  display:flex;align-items:center;gap:12px;width:calc(100% - 24px);margin:10px 12px 0;
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:13px;font-family:var(--font);cursor:pointer;text-align:right;
+}
+.exp .info{flex:1}
+.exp .info b{font-size:14.5px;color:var(--navy-900);font-weight:600;display:block}
+.exp .info .rq-what{font-size:12.5px;color:var(--muted);unicode-bidi:plaintext;display:block;margin-top:2px}
+.exp .c{color:#B9C2D4;font-size:18px}
+.stat{flex:0 0 auto;border-radius:8px;padding:4px 9px;font-size:11.5px;font-weight:600}
+.stat.wait{background:var(--orange-050);color:var(--orange-600);box-shadow:inset 0 0 0 1px #F3DFBC}
+.stat.fix{background:#E4F7FB;color:#0A7C90;box-shadow:inset 0 0 0 1px #B9E7F1}
+.stat.done{background:#EAF6EF;color:#2F8F5B}
+.stat.rej{background:#FDECEC;color:#9B2C2C}
+.rq-kind{
+  flex:0 0 34px;height:34px;border-radius:9px;background:var(--navy-100);color:var(--navy-800);
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.grouphead{
+  padding:9px 14px;font-size:12px;font-weight:600;color:var(--muted);
+  background:#FAFBFD;border-top:1px solid var(--line);
+}
+.grouphead:first-child{border-top:0}
+.heavy{
+  margin:12px;background:var(--orange-050);border:1px solid #F3DFBC;border-radius:var(--radius);
+  padding:13px;display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#8A6E3C;line-height:1.5;
+}
+.heavy .ico{
+  flex:0 0 22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
+}
+.demo-switch{display:flex;gap:8px;justify-content:center;margin:0 0 14px}
+.demo-switch button{
+  background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:8px 16px;
+  font-family:var(--font);font-size:13.5px;font-weight:600;color:var(--navy-800);cursor:pointer;
+}
+.demo-switch button.on{background:var(--navy-800);border-color:var(--navy-800);color:#fff}
+/* ---------- calendar ---------- */
+.cal{background:#fff;padding:12px 10px 16px}
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.cal-head span{text-align:center;font-size:12px;color:var(--muted);font-weight:600;padding:6px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.day{
+  position:relative;aspect-ratio:1/1.15;border:0;background:transparent;cursor:pointer;
+  font-family:var(--font);font-size:14.5px;color:var(--navy-800);font-weight:500;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  border-radius:11px;padding:2px 0;
+}
+.daytag{
+  font-size:9.5px;font-weight:600;line-height:1.1;direction:ltr;
+  color:var(--muted);white-space:nowrap;
+}
+.day.st-ok .daytag{color:#8B96AC}
+.day.st-missing{background:var(--orange-050);box-shadow:inset 0 0 0 1.5px var(--orange)}
+.day.st-missing .daytag{color:var(--orange-600)}
+.day.st-absence{background:#EDF1F9}
+.day.st-absence .daytag{color:var(--navy-800)}
+.day.st-pending{background:repeating-linear-gradient(-45deg,#EDF1F9,#EDF1F9 4px,#F7F9FC 4px,#F7F9FC 8px)}
+.day.st-pending .daytag{color:var(--navy-700)}
+.day.fixed{background:var(--navy-100);box-shadow:none}
+.day.picked{outline:2.5px solid var(--navy-900);outline-offset:-2px}
+.day.today.picked{outline-color:var(--orange)}
+.legend{
+  display:flex;justify-content:center;gap:14px;padding:10px 4px 2px;
+  font-size:11px;color:var(--muted);
+}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend .lg{width:11px;height:11px;border-radius:3px;display:block}
+.legend .lg-missing{background:var(--orange-050);box-shadow:inset 0 0 0 1.5px var(--orange)}
+.legend .lg-absence{background:#EDF1F9}
+.legend .lg-pending{background:repeating-linear-gradient(-45deg,#EDF1F9,#EDF1F9 3px,#F7F9FC 3px,#F7F9FC 6px)}
+.picknote{text-align:center;font-size:12px;color:var(--muted);padding:8px 4px 0}
+.picknote b{color:var(--navy-900);font-weight:600}
+.day .expmark{position:absolute;top:3px;left:5px;font-size:9.5px;font-weight:700;color:var(--navy-700);line-height:1}
+.day.today .expmark{color:#fff}
+.legend .lg-exp{font-size:10px;font-weight:700;color:var(--navy-700);width:auto;height:auto}
+.day.out{color:#D7DCE6;pointer-events:none}
+.day.weekend{color:var(--weekend)}
+.day.today{background:var(--navy-800);color:#fff;font-weight:600}
+.day:focus-visible{outline:2px solid var(--navy-800);outline-offset:-2px}
+/* ---------- summary panel ---------- */
+.panel-handle{
+  display:block;width:100%;background:transparent;border:0;padding:8px 0 4px;cursor:pointer;
+}
+.panel-handle .grab{display:block;margin:0 auto}
+.hero-sum{padding:4px 8px 2px}
+.hs-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.hs-big{display:block;font-size:34px;font-weight:600;color:var(--navy-900);direction:ltr;line-height:1.05}
+.hs-lbl{display:block;font-size:12.5px;color:var(--muted);margin-top:1px}
+.verdict{
+  flex:0 0 auto;border-radius:10px;padding:7px 12px;font-size:13px;font-weight:600;
+  background:var(--navy-100);color:var(--navy-800);text-align:center;line-height:1.35;
+}
+.verdict.warn{background:var(--orange-050);color:var(--orange-600);box-shadow:inset 0 0 0 1px #F3DFBC}
+.verdict b{display:block;font-size:15px;direction:ltr}
+.bar-ends{
+  display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin:-2px 0 8px;
+}
+.bar{
+  position:relative;height:8px;border-radius:4px;background:#DFE4EE;margin:10px 0 8px;overflow:visible;
+}
+.bar i{
+  position:absolute;top:0;right:0;height:100%;border-radius:4px;background:var(--navy-800);display:block;
+}
+.bar .tick{
+  position:absolute;top:-4px;width:2px;height:16px;background:var(--orange);border-radius:1px;
+}
+.hs-note{font-size:12.5px;color:var(--muted);line-height:1.5}
+.hs-note b{color:var(--navy-900);font-weight:600}
+.hs-note b.warn{color:var(--orange-600)}
+.act-chips{display:flex;flex-wrap:wrap;gap:8px;padding:10px 8px 4px}
+.act-chip{
+  display:flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--line);
+  border-radius:20px;padding:9px 14px;font-family:var(--font);font-size:13.5px;
+  color:var(--navy-900);font-weight:600;cursor:pointer;
+}
+.act-chip .n{
+  background:var(--navy-800);color:#fff;border-radius:50%;width:21px;height:21px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;
+}
+.act-chip.warn{border-color:var(--orange);background:var(--orange-050)}
+.act-chip.warn .n{background:var(--orange)}
+.act-chip .c{color:#B9C2D4;font-size:15px}
+.pm-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;
+  padding:10px 8px 0;border-top:1px solid var(--line);margin-top:12px;
+}
+.pm-row{
+  display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:baseline;
+  padding:7px 0;font-size:13px;color:var(--navy-900);
+}
+.pm-row span{color:var(--muted);font-size:12.5px}
+.pm-row b{font-weight:600;direction:ltr;font-size:14.5px}
+.pm-row.zero b{color:#9AA4B8}
+button.pm-row{background:transparent;border:0;font-family:var(--font);cursor:pointer;width:100%;text-align:right}
+.pm-row.tap b{color:var(--navy-800)}
+.pm-row .pm-c{color:#B9C2D4;font-size:13px;font-weight:600}
+.sumpanel{
+  background:var(--bg);border-top:1px solid var(--line);border-radius:16px 16px 0 0;
+  position:sticky;bottom:0;padding:0 10px 14px;box-shadow:0 -4px 14px rgba(30,44,80,.08);
+}
+/* ---------- day screen ---------- */
+.sect-title{font-size:13px;color:var(--muted);font-weight:600;margin:18px 16px 8px}
+.punch{
+  background:#fff;margin:0 12px 10px;border-radius:var(--radius);
+  border:1px solid var(--line);padding:14px;display:flex;align-items:center;gap:14px;
+}
+.punch.need{border-color:var(--orange);background:#fff}
+.punch.brk{background:#FAFBFD;border-style:dashed}
+.punch.locked{opacity:.5}
+.punch.locked .chev{visibility:hidden}
+.punch.brk .tslot b{font-size:17px;color:var(--navy-700)}
+.punch.brk .meta{color:var(--navy-700);font-weight:600}
+.punch .times{display:flex;align-items:center;gap:10px;flex:1}
+.tslot{text-align:center;min-width:62px}
+.tslot b{display:block;font-size:19px;font-weight:600;color:var(--navy-900);line-height:1.25;direction:ltr}
+.tslot span{font-size:11.5px;color:var(--muted)}
+.arrow{color:#C3CAD8;font-size:15px}
+.punch .meta{font-size:12.5px;color:var(--muted);text-align:left;max-width:104px;line-height:1.35}
+.tslot.empty{
+  border:0;border-radius:10px;padding:8px 12px;background:var(--orange);cursor:pointer;
+  box-shadow:0 2px 6px rgba(240,160,46,.35);
+}
+.tslot.empty b{color:#fff;font-size:14px}
+.tslot.empty span{color:#fff;opacity:.9}
+.punch.locked .tslot.empty{background:#EFEFF3;box-shadow:none}
+.punch.locked .tslot.empty b,.punch.locked .tslot.empty span{color:#9AA4B8}
+.punch .chev{color:var(--orange-600);font-size:18px;font-weight:600}
+.extra{
+  background:#fff;margin:0 12px 10px;border-radius:var(--radius);
+  border:1px solid var(--line);padding:14px;display:flex;justify-content:space-between;align-items:center;
+}
+.extra b{font-size:14.5px;color:var(--navy-900);font-weight:600}
+.extra span{font-size:13.5px;color:var(--muted);direction:ltr}
+.extra.exprow{cursor:pointer;gap:10px;width:calc(100% - 24px);text-align:right}
+.extra.exprow .ex-t{flex:1;display:flex;flex-direction:column;gap:2px}
+.extra.exprow .ex-t span{font-size:12.5px;direction:rtl}
+.extra.exprow .ex-a{font-size:15px;font-weight:600;color:var(--navy-900);direction:ltr}
+.etypes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.etypes button{
+  background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 4px;
+  font-family:var(--font);cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:var(--navy-900);
+}
+.etypes button .ef{display:block;font-size:10px;color:var(--orange-600);font-weight:600;margin-top:2px}
+.etypes button.on{border-color:var(--navy-800);background:var(--navy-100)}
+.eamount{
+  display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);
+  border-radius:12px;background:#fff;padding:11px 13px;
+}
+.eamount .cur{font-size:18px;color:var(--muted)}
+.eamount input{
+  flex:1;border:0;outline:0;font-family:var(--font);font-size:22px;font-weight:600;
+  color:var(--navy-900);direction:ltr;text-align:right;background:transparent;
+}
+.eamount.err{border-color:#D64545}
+.ehint{display:block;font-size:11.5px;color:var(--muted);margin:6px 0 12px}
+.addnote{
+  text-align:center;font-size:12px;color:var(--muted);margin:7px 0 0;
+}
+.addbtn{
+  display:block;width:calc(100% - 24px);margin:6px 12px 0;background:#fff;
+  border:1.5px solid var(--navy-800);border-radius:12px;padding:14px;
+  font-family:var(--font);font-size:15px;color:var(--navy-800);font-weight:600;cursor:pointer;
+}
+.fixnow{
+  margin:0 12px 12px;width:calc(100% - 24px);background:var(--orange);border:0;color:#fff;
+  border-radius:12px;padding:14px;font-family:var(--font);font-size:15.5px;font-weight:600;cursor:pointer;
+}
+.blockstrip{
+  margin:12px 12px 0;background:var(--orange-050);border:1px solid #F3DFBC;
+  border-radius:var(--radius);padding:13px 14px;display:flex;align-items:flex-start;gap:10px;
+}
+.blockstrip .bs-i{
+  flex:0 0 22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
+}
+.blockstrip .bs-t{font-size:13px;color:#8A6E3C;line-height:1.5}
+.confirm{
+  margin:12px 12px 0;background:var(--navy-100);border-radius:var(--radius);
+  padding:13px 14px;display:flex;align-items:center;gap:10px;
+}
+.confirm .cv{
+  flex:0 0 24px;height:24px;border-radius:50%;background:var(--navy-800);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.confirm .ct{font-size:13.5px;color:var(--navy-900);line-height:1.5}
+.nextday{
+  margin:20px 12px 0;background:var(--orange-050);border:1px solid #F3DFBC;
+  border-radius:var(--radius);padding:16px;
+}
+.nextday b{display:block;font-size:15px;color:var(--navy-900);margin-bottom:3px}
+.nextday span{font-size:13px;color:#8A6E3C}
+.nextday button{
+  margin-top:12px;width:100%;background:var(--navy-800);color:#fff;border:0;border-radius:11px;
+  padding:13px;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;
+}
+.daybar{
+  background:var(--navy-800);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;
+}
+.daybar .l b{display:block;font-size:17px;font-weight:600}
+.daybar .l span{font-size:12.5px;opacity:.8}
+.daybar .r{text-align:left}
+.daybar .r b{display:block;font-size:17px;font-weight:600;direction:ltr}
+.daybar .r span{font-size:12.5px;opacity:.8}
+.ghost{
+  display:block;margin:16px auto 8px;background:transparent;border:0;color:var(--navy-800);
+  font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;padding:10px;
+}
+/* ---------- side menu ---------- */
+.sidemenu{
+  position:absolute;top:0;bottom:0;right:0;width:78%;background:#fff;
+  z-index:7;transform:translateX(101%);transition:transform .26s ease;
+  display:flex;flex-direction:column;box-shadow:-6px 0 20px rgba(24,34,60,.18);
+}
+.sidemenu.on{transform:translateX(0)}
+.sm-head{
+  background:var(--hero-navy);color:#fff;display:flex;align-items:center;gap:12px;
+  padding:22px 18px;
+}
+.sm-head .sm-av{
+  width:44px;height:44px;border-radius:50%;background:#fff;color:var(--navy-800);
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 44px;
+}
+.sm-head b{font-size:15px;font-weight:600;white-space:nowrap}
+.sm-list{flex:1;overflow-y:auto;padding:10px 0}
+.sm-row{
+  display:flex;align-items:center;gap:14px;width:100%;background:transparent;border:0;
+  font-family:var(--font);font-size:14.5px;color:var(--navy-900);
+  text-align:right;padding:13px 18px;cursor:pointer;
+}
+.sm-row .sm-ic{
+  flex:0 0 26px;font-size:17px;color:var(--navy-800);text-align:center;
+}
+.sm-row.on{background:var(--navy-100);box-shadow:inset -3px 0 0 var(--orange);font-weight:600}
+.sm-row.dim{color:#9AA4B8}
+.sm-row.dim .sm-ic{color:#B9C2D4}
+.sm-new{
+  margin-inline-start:auto;font-size:10.5px;font-weight:600;color:var(--orange-600);
+  background:var(--orange-050);border-radius:6px;padding:2px 7px;
+}
+.sm-foot{padding:14px 18px 20px;border-top:1px solid var(--line)}
+.sm-cta{
+  width:100%;background:var(--navy-800);color:#fff;border:0;border-radius:10px;
+  padding:13px;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;
+}
+.scrim{
+  position:absolute;inset:0;background:rgba(24,34,60,.44);opacity:0;pointer-events:none;
+  transition:opacity .22s ease;z-index:5;
+}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;background:#fff;z-index:6;
+  border-radius:20px 20px 0 0;transform:translateY(102%);
+  transition:transform .28s cubic-bezier(.22,.7,.3,1);
+  max-height:92%;display:flex;flex-direction:column;
+}
+.sheet.on{transform:translateY(0)}
+.sheet-top{z-index:8;box-shadow:0 -8px 26px rgba(24,34,60,.22)}
+@media (prefers-reduced-motion:reduce){
+  .sheet,.sidemenu,.scrim,.toast{transition:none}
+}
+.grab{width:40px;height:4px;border-radius:2px;background:#D8DEE9;margin:9px auto 2px}
+.sheet-head{padding:8px 18px 4px}
+.sheet-head h2{margin:0;font-size:19px;font-weight:600;color:var(--navy-900)}
+.sheet-head p{margin:5px 0 0;font-size:13.5px;color:var(--muted);line-height:1.5}
+.sheet-body{padding:12px 18px 0;overflow-y:auto}
+/* wheel */
+.wheel{
+  position:relative;display:flex;justify-content:center;gap:6px;margin:8px 0 4px;
+  direction:ltr;
+}
+.band{
+  position:absolute;left:50%;transform:translateX(-50%);top:66px;height:44px;width:168px;
+  background:var(--navy-100);border-radius:11px;pointer-events:none;
+}
+.col{
+  height:176px;width:76px;overflow-y:scroll;scroll-snap-type:y mandatory;
+  scrollbar-width:none;position:relative;z-index:1;
+}
+.col::-webkit-scrollbar{display:none}
+.col .pad{height:66px}
+.col .it{
+  height:44px;display:flex;align-items:center;justify-content:center;
+  scroll-snap-align:center;font-size:25px;font-weight:600;color:#B9C2D4;
+  transition:color .12s ease;
+}
+.col .it.sel{color:var(--navy-900)}
+.colon{
+  align-self:center;font-size:25px;font-weight:600;color:var(--navy-900);
+  position:relative;z-index:2;padding-bottom:2px;
+}
+/* typed mode */
+.typed{display:none;justify-content:center;align-items:center;gap:8px;padding:34px 0 22px;direction:ltr}
+.typed.on{display:flex}
+.wheel.off,.band.off{display:none}
+.typed input{
+  width:78px;height:62px;text-align:center;font-family:var(--font);font-size:28px;font-weight:600;
+  color:var(--navy-900);border:1.5px solid var(--line);border-radius:12px;background:#fff;
+}
+.typed input:focus{outline:0;border-color:var(--navy-800)}
+.mode-toggle{
+  display:block;margin:2px auto 10px;background:transparent;border:0;color:var(--navy-800);
+  font-family:var(--font);font-size:13.5px;font-weight:600;cursor:pointer;padding:6px 10px;
+}
+.vmsg{
+  background:#FDECEC;border:1px solid #F5C6C6;border-radius:11px;
+  padding:11px 13px;margin:14px 0 0;font-size:13px;color:#9B2C2C;line-height:1.5;
+}
+/* meta rows */
+.metarow{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:13px 0;border-top:1px solid var(--line);font-size:14px;
+}
+.metarow .k{color:var(--muted)}
+.metarow .v{color:var(--navy-900);font-weight:600}
+.metarow .lockhint{font-size:12px;color:var(--muted);margin-inline-start:6px}
+details.more{border-top:1px solid var(--line)}
+details.more summary{
+  list-style:none;padding:13px 0;font-size:14px;font-weight:600;color:var(--navy-800);cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::after{content:"⌄";font-size:16px;color:var(--muted)}
+details.more[open] summary::after{content:"⌃"}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px}
+.typelist{display:flex;flex-wrap:wrap;gap:8px}
+.typelist button{
+  flex:1 1 calc(50% - 4px);background:#fff;border:1.5px solid var(--line);border-radius:11px;
+  padding:11px 8px;font-family:var(--font);font-size:14px;color:var(--navy-900);cursor:pointer;
+}
+.typelist button.on{border-color:var(--navy-800);background:var(--navy-100);font-weight:600}
+.balances{display:flex;gap:8px;padding:2px 0 12px}
+.bal{
+  flex:1;background:#fff;border:1.5px solid var(--line);border-radius:12px;
+  padding:11px 8px;text-align:center;
+}
+.bal.on{border-color:var(--navy-800);background:var(--navy-100)}
+.bal b{display:block;font-size:19px;font-weight:600;color:var(--navy-900);direction:ltr;line-height:1.15}
+.bal .after{display:block;font-size:12px;font-weight:600;color:var(--orange-600);direction:ltr;margin-top:1px}
+.bal span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.balmsg{
+  border-radius:11px;padding:11px 13px;margin:-4px 0 12px;
+  font-size:13px;line-height:1.5;
+  background:var(--orange-050);border:1px solid #F3DFBC;color:#8A6E3C;
+}
+.balmsg.block{background:#FDECEC;border-color:#F5C6C6;color:#9B2C2C}
+.balmsg b{font-weight:600}
+.bal .after.neg{color:#D64545}
+.upcoming{border-top:1px solid var(--line);padding:12px 0 2px}
+.up-head{font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.up-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0}
+.up-row b{font-size:14px;color:var(--navy-900);font-weight:600}
+.up-row .up-d{font-size:12.5px;color:var(--muted)}
+.up-tag{
+  font-size:11.5px;font-weight:600;border-radius:7px;padding:4px 9px;flex:0 0 auto;
+  background:repeating-linear-gradient(-45deg,#E3EAF7,#E3EAF7 4px,#F2F6FC 4px,#F2F6FC 8px);
+  color:var(--navy-800);box-shadow:inset 0 0 0 1px #D5DDEC;
+}
+.up-tag.ok{background:var(--navy-100);color:var(--navy-800);box-shadow:none}
+.up-empty{font-size:12.5px;color:var(--muted)}
+.pickrow{
+  display:flex;align-items:center;gap:10px;width:100%;background:#fff;border:0;
+  padding:14px 0;font-family:var(--font);cursor:pointer;text-align:right;
+}
+.pickrow .pk-k{font-size:14px;color:var(--muted);flex:0 0 auto}
+.pickrow .pk-v{flex:1;font-size:14.5px;color:var(--navy-900);font-weight:600}
+.pickrow .pk-v.empty{color:#A9B2C4;font-weight:400}
+.pickrow .pk-c{color:#B9C2D4;font-size:19px;font-weight:600}
+.pickrow.locked{cursor:default;opacity:.55}
+.pickrow.locked .pk-c{visibility:hidden}
+.pickrow.fixed{cursor:default}
+.pickrow.fixed .pk-c{visibility:hidden}
+.daylock{
+  background:var(--navy-100);border-radius:11px;padding:10px 13px;margin:2px 0 4px;
+  font-size:12.5px;color:var(--navy-800);line-height:1.5;
+}
+.daycount{
+  background:var(--navy-100);border-radius:11px;padding:11px 13px;margin:4px 0 0;
+  font-size:13.5px;color:var(--navy-900);font-weight:600;text-align:center;
+}
+.monthnav{
+  display:flex;align-items:center;justify-content:space-between;padding:2px 4px 6px;
+}
+.monthnav b{font-size:15.5px;font-weight:600;color:var(--navy-900)}
+.monthnav button{
+  width:38px;height:38px;border-radius:10px;border:0;background:transparent;
+  font-family:var(--font);font-size:20px;color:var(--navy-800);cursor:pointer;line-height:1;
+}
+.monthnav button:active{background:var(--navy-100)}
+.switchrow{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 0;border-top:1px solid var(--line);
+}
+.switchrow .sw-t{flex:1}
+.switchrow .sw-t b{display:block;font-size:14.5px;color:var(--navy-900);font-weight:600}
+.switchrow .sw-t span{font-size:12.5px;color:var(--muted)}
+.switchrow.locked{opacity:.5}
+.switchrow.locked .sw{pointer-events:none}
+.sw{
+  flex:0 0 48px;width:48px;height:28px;border-radius:14px;border:0;background:#D3DAE6;
+  position:relative;cursor:pointer;transition:background .18s ease;padding:0;
+}
+.sw i{
+  position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;
+  background:#fff;transition:transform .18s ease;box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.sw.on{background:var(--navy-800)}
+.sw.on i{transform:translateX(-20px)}
+.dropzone{
+  width:100%;background:var(--orange-050);border:1.5px dashed var(--orange);border-radius:12px;
+  padding:15px;font-family:var(--font);cursor:pointer;color:var(--orange-600);
+  display:flex;flex-direction:column;gap:3px;align-items:center;
+}
+.dropzone span{font-size:14.5px;font-weight:600}
+.dropzone .dz-sub{font-size:12px;font-weight:400;color:#8A6E3C}
+.done-mini{display:flex;align-items:flex-start;gap:12px;padding:6px 0 10px}
+.done-mini .dm-v{
+  flex:0 0 34px;height:34px;border-radius:50%;background:var(--navy-100);color:var(--navy-800);
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+}
+.done-mini b{display:block;font-size:17px;font-weight:600;color:var(--navy-900);margin-bottom:3px}
+.done-mini span{font-size:13.5px;color:var(--muted);line-height:1.5}
+.projrow{padding:13px 0;border-top:1px solid var(--line)}
+.projrow:first-child{border-top:0}
+.projrow .pr-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.projrow b{font-size:14.5px;color:var(--navy-900);font-weight:600}
+.projrow .pr-h{font-size:14.5px;font-weight:600;color:var(--navy-900);direction:ltr}
+.projrow .pr-bar{height:6px;border-radius:3px;background:#E3E7EF;margin-top:8px;position:relative}
+.projrow .pr-bar i{position:absolute;top:0;right:0;height:100%;border-radius:3px;background:var(--navy-800)}
+.projrow .pr-sub{font-size:12px;color:var(--muted);margin-top:5px;display:block}
+.statusbox{
+  display:flex;align-items:center;gap:10px;background:var(--navy-100);
+  border-radius:12px;padding:12px 13px;margin:2px 0 6px;
+}
+.sb-tag{
+  flex:0 0 auto;border-radius:8px;padding:5px 11px;font-size:12.5px;font-weight:600;
+  background:repeating-linear-gradient(-45deg,#E3EAF7,#E3EAF7 4px,#F2F6FC 4px,#F2F6FC 8px);
+  color:var(--navy-800);box-shadow:inset 0 0 0 1px #D5DDEC;
+}
+.sb-tag.ok{background:var(--navy-800);color:#fff;box-shadow:none}
+.sb-tag.rej{background:#FDECEC;color:#9B2C2C;box-shadow:inset 0 0 0 1px #F5C6C6}
+.sb-txt{font-size:13px;color:var(--navy-900);line-height:1.45}
+.timeline{padding:14px 0 4px;border-top:1px solid var(--line);margin-top:6px}
+.tl-item{display:flex;gap:11px;align-items:flex-start;padding:5px 0}
+.tl-dot{
+  flex:0 0 9px;width:9px;height:9px;border-radius:50%;background:var(--navy-800);margin-top:5px;
+}
+.tl-dot.wait{background:#fff;box-shadow:inset 0 0 0 2px #C3CAD8}
+.tl-dot.rej{background:#D64545}
+.tl-item b{display:block;font-size:13.5px;color:var(--navy-900);font-weight:600}
+.tl-item span{font-size:12px;color:var(--muted)}
+.chip{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--navy-100);border-radius:11px;padding:11px 13px;font-size:14px;
+  color:var(--navy-900);font-weight:600;
+}
+.chip button{background:transparent;border:0;color:var(--navy-800);font-size:15px;cursor:pointer;padding:2px 6px}
+.secondary{
+  width:100%;margin-top:9px;background:#fff;border:1.5px solid var(--navy-800);
+  border-radius:12px;padding:13px;font-family:var(--font);font-size:14.5px;
+  font-weight:600;color:var(--navy-800);cursor:pointer;
+}
+.secondary:disabled{border-color:var(--line);color:#B9C2D4;cursor:not-allowed}
+.searchwrap{padding:4px 18px 10px}
+.searchwrap input{
+  width:100%;border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;
+  font-family:var(--font);font-size:14.5px;color:var(--navy-900);
+}
+.searchwrap input:focus{outline:0;border-color:var(--navy-800)}
+.tgroup{
+  padding:11px 2px 5px;font-size:12px;font-weight:600;color:var(--muted);
+}
+.trow{
+  display:flex;align-items:center;justify-content:space-between;width:100%;background:#fff;
+  border:0;border-top:1px solid var(--line);padding:14px 2px;
+  font-family:var(--font);font-size:14.5px;color:var(--navy-900);cursor:pointer;text-align:right;
+}
+.trow .tflag{font-size:11.5px;color:var(--muted);font-weight:400}
+.trow.on{font-weight:600}
+.menurow{
+  display:flex;align-items:center;gap:12px;width:100%;background:#fff;
+  border:0;border-top:1px solid var(--line);padding:15px 2px;
+  font-family:var(--font);cursor:pointer;text-align:right;
+}
+.menurow:first-child{border-top:0}
+.menurow .mr-t{flex:1}
+.menurow .mr-t b{display:block;font-size:15px;color:var(--navy-900);font-weight:600}
+.menurow .mr-t span{font-size:12.5px;color:var(--muted)}
+.menurow .mr-c{color:#B9C2D4;font-size:19px;font-weight:600}
+.menurow.locked{opacity:.5;cursor:default}
+.menurow.locked .mr-c{visibility:hidden}
+.nextday-note{
+  background:var(--navy-100);border-radius:11px;padding:11px 13px;margin:10px 0 0;
+  font-size:13px;color:var(--navy-900);line-height:1.5;
+}
+.field .val{
+  border:1px solid var(--line);border-radius:11px;padding:12px;font-size:14.5px;
+  color:var(--navy-900);background:#FBFCFE;
+}
+.reason{padding:14px 0 4px;border-top:1px solid var(--line)}
+.reason label{display:block;font-size:13px;color:var(--navy-900);font-weight:600;margin-bottom:6px}
+.reason label .req{color:#D64545;margin-inline-start:2px}
+.reason textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:11px;padding:11px 12px;
+  font-family:var(--font);font-size:14.5px;color:var(--navy-900);resize:none;background:#fff;
+  line-height:1.5;
+}
+.reason textarea:focus{outline:0;border-color:var(--navy-800)}
+.reason textarea.err{border-color:#D64545}
+.reason-note{display:block;font-size:11.5px;color:var(--muted);margin-top:6px}
+.primary:disabled{background:#C3CAD8;cursor:not-allowed}
+/* impact */
+.impact{
+  background:var(--navy-100);border-radius:12px;padding:12px 14px;margin:14px 0 4px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.impact .k{font-size:13px;color:var(--navy-800)}
+.impact .v{font-size:15px;font-weight:600;color:var(--navy-900);unicode-bidi:plaintext}
+.impact .v.warn{color:var(--orange-600)}
+.sheet-foot{padding:12px 18px 20px;border-top:1px solid var(--line);background:#fff}
+.primary{
+  width:100%;background:var(--navy-800);color:#fff;border:0;border-radius:12px;
+  padding:15px;font-family:var(--font);font-size:16px;font-weight:600;cursor:pointer;
+}
+.primary:active{background:var(--navy-900)}
+/* toast */
+.toast{
+  position:absolute;bottom:18px;left:16px;right:16px;background:var(--navy-900);color:#fff;
+  border-radius:12px;padding:13px 16px;font-size:14px;z-index:20;
+  opacity:0;transform:translateY(10px);transition:all .25s ease;pointer-events:none;
+}
+.toast.on{opacity:1;transform:translateY(0)}
+.toast.top{bottom:auto;top:14px;transform:translateY(-10px)}
+.toast.top.on{transform:translateY(0)}
+.restart{
+  display:block;margin:16px auto 0;background:transparent;border:0;color:#5C6883;
+  font-family:var(--font);font-size:13px;cursor:pointer;text-decoration:underline;
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <p class="stage-note">אב טיפוס מאוחד — נוכחות והיעדרות · הוצאות · סטטוסים · סיכומים · אזור מנהל</p>
+  <div class="demo-switch">
+    <button id="roleEmp" onclick="setRole(false)">משתמש עובד — 4 כפתורים</button>
+    <button class="on" id="roleMgr" onclick="setRole(true)">משתמש מנהל — 5 כפתורים</button>
+  </div>
+  <div class="demo-switch">
+    <button onclick="showPush()">הדגמה: תזכורת על יציאה שלא הוחתמה</button>
+    <button onclick="simulateCancel()">הדגמה: עובד מבטל בקשה שהמנהל פתח</button>
+  </div>
+
+
+  <div class="phone">
+    <div class="statusbar">
+      <span>12:04</span>
+      <span class="dots"><i></i><i></i><i></i><i></i></span>
+    </div>
+
+    <div class="appbar">
+      <div>
+        <h1 id="barTitle">אוגוסט–ספטמבר 2026</h1>
+        <div class="sub" id="barSub">נוכחות</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="iconbtn" id="backBtn" aria-label="חזרה" style="display:none">←</button>
+        <button class="iconbtn" onclick="openMenu()" aria-label="תפריט">☰</button>
+      </div>
+    </div>
+
+    <div class="body" id="body">
+
+      <!-- ===== HOME ===== -->
+      <section class="screen on" id="scr-home">
+        <div class="hero" id="hero">
+          <button class="hamburger" aria-label="תפריט" onclick="openMenu()">
+            <i></i><i></i><i></i>
+          </button>
+
+          <div class="hero-clock">12:04</div>
+          <div class="hero-date">1 ספטמבר, יום שלישי</div>
+
+          <div class="dials">
+            <button class="dial dial-in-state" onclick="toast('כבר נרשמה כניסה היום')">
+              <span class="ring"></span>
+              <span class="mid"></span>
+              <span class="core">כניסה</span>
+            </button>
+            <button class="dial dial-out-state" onclick="toast('בפרוטוטייפ ההחתמה מנוטרלת')">
+              <span class="ring"></span>
+              <span class="mid"></span>
+              <span class="core">יציאה</span>
+            </button>
+          </div>
+
+          <div class="lastrep">
+            <span class="pin">◉</span>
+            <span>דיווח אחרון 10:28 01/09/2026 כניסה טכנאים סמרטפון</span>
+          </div>
+        </div>
+
+        <div class="hero-card" id="heroCard" style="cursor:pointer">
+          <div class="hc-top">
+            <div class="hc-num">
+              <b>19:41</b>
+              <span>שעות עבודה חודשיות</span>
+            </div>
+            <div class="donut">
+              <svg viewBox="0 0 100 100" aria-hidden="true">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#D4DAE6" stroke-width="9"/>
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#3E5793" stroke-width="9"
+                        stroke-dasharray="264" stroke-dashoffset="79" stroke-linecap="butt"
+                        transform="rotate(-90 50 50)"/>
+              </svg>
+              <span class="donut-lbl"><i class="tri"></i>1:07-</span>
+            </div>
+          </div>
+          <div class="hc-bot">
+            <button class="hc-missing" id="missingLink" onclick="openFirstMissing()">
+              <span class="count" id="homeBadge">2</span>
+              <span>דיווחים חסרים</span>
+              <span class="hc-chev">‹</span>
+            </button>
+            <span class="hc-ok" id="allGood" style="display:none">✓ כל הדיווחים מעודכנים</span>
+            <span class="hc-req">28:00 שעות נדרשות</span>
+          </div>
+        </div>
+
+        <!-- ארבע כניסות קבועות. כל כפתור עושה דבר אחד -->
+        <nav class="tabbar">
+          <button onclick="show('month')">
+            <span class="tico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><rect x="7" y="12.5" width="3" height="3" rx=".5" fill="currentColor" stroke="none"/></svg></span><span>נוכחות</span>
+          </button>
+          <button onclick="openExpense(true)">
+            <span class="tico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M12.5 10.5c-.4-.6-1-.9-1.8-.9-1 0-1.7.5-1.7 1.3 0 1.9 3.6 1 3.6 3 0 .8-.8 1.4-1.9 1.4-.8 0-1.5-.3-1.9-.9M10.8 8.8v1M10.8 15.3v1"/></svg></span><span>הוצאות</span>
+          </button>
+          <button onclick="reqTab='wait';reqKind='all';show('req')">
+            <span class="tico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><i class="tbadge" id="tbStat"></i></span><span>סטטוסים</span>
+          </button>
+
+          <button onclick="show('sum')">
+            <span class="tico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V5M16 20v-7M21 20H3"/></svg></span><span>סיכומים</span>
+          </button>
+          <!-- מוצג רק למשתמש מנהל. אחרון בסרגל, כדי שארבעת הכפתורים של העובד יישארו באותו מקום לכולם -->
+          <button id="tabMgr" onclick="show('mgr')" style="display:none">
+            <span class="tico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.6"/><path d="M3.5 19.5c.6-3.5 3.3-5.5 6.5-5.5 1.2 0 2.3.3 3.2.8"/><circle cx="17.5" cy="17" r="2.2"/><path d="M17.5 13.3v1.5M17.5 19.2v1.5M13.8 17h1.5M19.7 17h1.5M14.9 14.4l1 1M19.1 18.6l1 1M14.9 19.6l1-1M19.1 15.4l1-1"/></svg><i class="tbadge" id="tbMgr"></i></span><span>אזור מנהל</span>
+          </button>
+        </nav>
+      </section>
+
+
+      <!-- ===== FULL LIST ===== -->
+      <section class="screen" id="scr-list">
+        <div class="heavy" id="heavyNote">
+          <span class="ico">!</span>
+          <span>הרבה ימים ללא החתמה. אם יש תקלה בשעון או בטלפון, שווה לעדכן את המנהל לפני ההשלמה.</span>
+        </div>
+
+        <div class="sect-title" id="listCount">ימים ממתינים להשלמה</div>
+        <div class="missing-card" style="border-color:var(--line)">
+          <div id="listRows"></div>
+        </div>
+        <div id="doneSect">
+          <div class="sect-title" id="doneHead">הושלמו</div>
+          <div class="missing-card" style="border-color:var(--line)">
+            <div id="listDone"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MONTH ===== -->
+      <section class="screen" id="scr-month">
+        <button class="missbar" id="missBar" onclick="show('list')">
+          <span class="n" id="missN">3</span><span id="missTxt">ימים להשלמה</span><span class="c">‹</span>
+        </button>
+        <div class="okbar" id="okBar" style="display:none">✓ אין ימים להשלמה במחזור הזה</div>
+        <div class="cal">
+          <div class="cal-head">
+            <span>א׳</span><span>ב׳</span><span>ג׳</span><span>ד׳</span><span>ה׳</span><span>ו׳</span><span>ש׳</span>
+          </div>
+          <div class="cal-grid" id="grid"></div>
+          <div class="legend">
+            <span><i class="lg lg-missing"></i>להשלמה</span>
+            <span><i class="lg lg-absence"></i>היעדרות</span>
+            <span><i class="lg lg-pending"></i>ממתין לאישור</span>
+            <span><i class="lg lg-exp">₪</i>הוצאה</span>
+          </div>
+        </div>
+        <div class="actbar">
+          <button class="primary" onclick="openAbsence(null,false,false)">☼ דיווח היעדרות</button>
+          <span class="ab-note">לעדכון שעות ביום מסוים — לחצו על היום בלוח</span>
+        </div>
+      </section>
+
+      <!-- ===== SUMMARY ===== -->
+      <section class="screen" id="scr-sum">
+        <div class="sumpanel" id="sumPanel">
+
+          <div class="hero-sum">
+            <div class="hs-top">
+              <div>
+                <span class="hs-big" id="hsWorked">29:38</span>
+                <span class="hs-lbl">שעות עבודה במחזור</span>
+              </div>
+              <span class="verdict" id="hsVerdict"></span>
+            </div>
+
+            <div class="bar">
+              <i id="hsBar" style="width:19%"></i>
+              <span class="tick" id="hsTick" style="right:18%"></span>
+            </div>
+            <div class="bar-ends">
+              <span id="hsTargetEnd">תקן המחזור 151:12</span>
+              <span id="hsTodayMark">התקן עד היום 28:48</span>
+            </div>
+
+            <div class="hs-note" id="hsNote"></div>
+          </div>
+
+          <div class="act-chips" id="actChips"></div>
+
+          <div class="pm-grid" id="pmRows"></div>
+        </div>
+      </section>
+
+      <!-- ===== REQUESTS ===== -->
+      <section class="screen" id="scr-req">
+        <div class="tabs" id="reqTabs"></div>
+        <div class="kindrow" id="reqKinds"></div>
+        <div class="sortrow">
+          <button class="sortchip" onclick="toggleReqSort()">
+            <span>⧩</span><span id="reqSortLbl">סטטוס: חדש – ישן</span>
+          </button>
+        </div>
+        <div class="totalbar" id="reqTotal"></div>
+        <div id="reqRows"></div>
+      </section>
+
+      <!-- ===== DAY ===== -->
+      <section class="screen" id="scr-day">
+        <div class="daybar">
+          <div class="l"><b id="dayName">1 בספטמבר</b><span id="dayDow">יום שלישי</span></div>
+          <div class="r"><b id="dayTotal">3:27</b><span>מתוך תקן 7:12</span></div>
+        </div>
+        <div class="blockstrip" id="blockStrip" style="display:none">
+          <span class="bs-i">!</span><span class="bs-t" id="blockTxt"></span>
+        </div>
+        <div class="confirm" id="confirmStrip" style="display:none">
+          <span class="cv">✓</span>
+          <span class="ct" id="confirmTxt"></span>
+        </div>
+        <div class="sect-title" id="punchTitle">עדכונים</div>
+        <div id="punchList"></div>
+        <div id="extraWrap" style="display:none">
+          <div class="sect-title" id="extraTitle">דיווחים נוספים</div>
+          <div id="extraList"></div>
+        </div>
+        <div id="addWrap">
+          <div class="sect-title">הוספה ליום הזה</div>
+          <div class="addgrid">
+            <button class="atile" id="tPunch"><b>כניסה ויציאה</b><span id="tPunchSub"></span></button>
+            <button class="atile" id="tAbs"><b>היעדרות</b><span id="tAbsSub"></span></button>
+            <button class="atile" id="tBreak"><b>הפסקה</b><span id="tBreakSub"></span></button>
+            <button class="atile" id="tTask"><b>תנועת משימה</b><span id="tTaskSub"></span></button>
+            <button class="atile" id="tOther"><b>דיווח נוסף</b><span id="tOtherSub"></span></button>
+          </div>
+        </div>
+
+        <div class="nextday" id="nextDay" style="display:none">
+          <b id="nextDayTitle"></b>
+          <span id="nextDaySub"></span>
+          <button onclick="goNext()">מעבר ליום הבא</button>
+        </div>
+        <button class="ghost" onclick="show('list')">חזרה לרשימת הדיווחים</button>
+      </section>
+
+      <!-- ===== MANAGER HOME ===== -->
+      <section class="screen" id="scr-mgr">
+        <div class="mbanner" id="subBanner" style="display:none"></div>
+        <button class="mcard" onclick="mgrKind='all';mgrView='urgent';show('mgrList')">
+          <div class="mc-top"><b>בקשות לאישור</b><span class="big" id="mgrBig">0</span></div>
+          <span class="mc-sub" id="mgrSub"></span>
+          <div class="mchips" id="mgrChips"></div>
+        </button>
+        <button class="mcard" onclick="openSub()">
+          <div class="mc-top"><b>מנהל מחליף</b><span class="c" style="color:#B9C2D4;font-size:18px">‹</span></div>
+          <span class="mc-sub" id="subSub">לא מוגדר. בזמן היעדרות — העברת הבקשות לאישור למחליף</span>
+        </button>
+        <button class="mcard" onclick="toast('אישור דו״ח נוכחות תקופתי — המסך הקיים, ללא שינוי')">
+          <div class="mc-top"><b>אישור דו״ח נוכחות</b><span class="c" style="color:#B9C2D4;font-size:18px">‹</span></div>
+          <span class="mc-sub">אישור תקופתי של שעות בפועל מול תקן, לכל עובד. הוצאות מאושרות על ידי חשב השכר.</span>
+        </button>
+      </section>
+
+      <!-- ===== MANAGER: EMPLOYEES ===== -->
+      <section class="screen" id="scr-mgrList">
+        <div class="mbanner" id="subBanner2" style="display:none"></div>
+        <div class="tabs" id="mgrView"></div>
+        <div class="kindrow" id="mgrKinds"></div>
+        <button class="selall" onclick="toggleAll()"><span class="chk" id="allChk" style="display:inline-block;width:20px;height:20px;border-radius:50%;border:2px solid #9AA4B8"></span>בחירת הכול</button>
+        <div id="mgrRows"></div>
+        <div class="bulkbar" id="bulkBar" style="display:none">
+          <button class="primary" id="bulkBtn" onclick="bulkApprove()">אישור</button>
+        </div>
+      </section>
+
+      <!-- ===== MANAGER: ONE EMPLOYEE ===== -->
+      <section class="screen" id="scr-mgrEmp">
+        <div id="mgrReqs"></div>
+      </section>
+
+      <div class="toast" id="toast"></div>
+    </div>
+
+    <!-- ===== SUBSTITUTE ===== -->
+    <div class="sheet sheet-top" id="subSheet" role="dialog" aria-modal="true" aria-labelledby="subTitle">
+      <div class="grab"></div>
+      <div class="sheet-head"><h2 id="subTitle">מנהל מחליף</h2>
+        <p>בקשות חדשות יועברו למחליף בתקופה שתבחר. בקשות שכבר ממתינות נשארות אצלך.</p></div>
+      <div class="sheet-body">
+        <div class="field"><label>מי מחליף</label></div><div class="opt" id="subWho"></div>
+        <div class="field"><label>עד מתי</label></div><div class="opt" id="subUntil"></div>
+      </div>
+      <div class="sheet-foot">
+        <button class="primary" id="subSave" onclick="saveSub()" disabled>שמירה</button>
+        <button class="secondary" id="subOff" onclick="clearSub()" style="display:none">ביטול ההחלפה</button>
+      </div>
+    </div>
+
+    <!-- ===== DECISION (החזרה / דחייה) ===== -->
+    <div class="sheet sheet-top" id="decSheet" role="dialog" aria-modal="true" aria-labelledby="decTitle">
+      <div class="grab"></div>
+      <div class="sheet-head"><h2 id="decTitle"></h2><p id="decSub"></p></div>
+      <div class="sheet-body" id="decBody"></div>
+      <div class="reason" style="padding:10px 18px 0;border:0">
+        <label for="decNote" id="decNoteLbl">הערה לעובד</label>
+        <textarea id="decNote" rows="2" oninput="paintDec()"></textarea>
+      </div>
+      <div class="sheet-foot"><button class="primary" id="decBtn" onclick="confirmDec()" disabled></button></div>
+    </div>
+
+    <!-- תזכורת — תלויה במנגנון התראות באפליקציה (לבירור) -->
+    <div class="push" id="push">
+      <div class="ph"><span>SYNEL HARMONY</span><span>18:30</span></div>
+      <b>שכחת להחתים יציאה?</b>
+      <p>נכנסת היום ב־07:01 ולא נרשמה יציאה.</p>
+      <div class="pa">
+        <button style="background:var(--navy-800);color:#fff;border:0" onclick="pushNow()">החתמת יציאה עכשיו</button>
+        <button style="background:#fff;color:var(--navy-800);border:1.5px solid var(--line)" onclick="pushLater()">השלמה מאוחר יותר</button>
+      </div>
+    </div>
+    <div class="undo" id="undo"><span id="undoTxt"></span><button onclick="doUndo()">ביטול</button></div>
+
+    <div class="sidemenu" id="sideMenu">
+      <div class="sm-head"><span class="sm-av">◍</span><b>99120,&nbsp;ענת ויינטראוב</b></div>
+      <div class="sm-list" id="smList"></div>
+      <div class="sm-foot"><button class="sm-cta" onclick="closeSide(); toast('התנתקות — לא בפרוטוטייפ')">התנתקות</button></div>
+    </div>
+
+    <!-- ===== EXPENSE FOR DAY ===== -->
+    <div class="sheet" id="expSheet" role="dialog" aria-modal="true" aria-labelledby="expTitle">
+      <div class="grab"></div>
+      <div class="sheet-head">
+        <h2 id="expTitle">הוצאה</h2>
+        <p>ההוצאה תישלח לאישור המנהל ותוצג גם ביום שלה בלוח.</p>
+      </div>
+      <div class="sheet-body">
+        <div class="rejbox fix" id="expFix" style="display:none"></div>
+        <div class="field"><label>סוג ההוצאה <span class="req">*</span></label></div>
+        <div class="etypes" id="expTypes"></div>
+        <div class="reason" id="expOtherWrap" style="display:none;border:0;padding:0 0 12px">
+          <label for="expOther">פירוט ההוצאה <span class="req">*</span></label>
+          <textarea id="expOther" rows="2" placeholder="במה מדובר?" oninput="paintExp()"></textarea>
+        </div>
+        <div class="field"><label>סכום <span class="req">*</span></label></div>
+        <div class="eamount" id="expAmtBox">
+          <span class="cur">₪</span>
+          <input id="expAmt" inputmode="decimal" placeholder="0.00" oninput="onExpAmt(this.value)">
+        </div>
+        <span class="ehint" id="expHint"></span>
+        <div class="scanned" id="expScanned" style="display:none">הסכום מולא מתוך הקבלה. בדקו שהוא נכון לפני השליחה.</div>
+        <div id="expRecWrap">
+          <button class="dropzone" id="expRecBtn" onclick="scanReceipt()">
+            <span>+ צילום או העלאת קבלה</span>
+            <span class="dz-sub" id="expRecSub">מהמצלמה או מהגלריה</span>
+          </button>
+          <div class="chip" id="expRecChip" style="display:none">
+            <span>receipt.jpg</span>
+            <button onclick="expRec=false;paintExp()" aria-label="הסרה">✕</button>
+          </div>
+        </div>
+        <div class="metarow" style="margin-top:12px">
+          <span class="k">תאריך</span>
+          <span><span class="v" id="expDate"></span><button class="lockhint" style="background:none;border:0;color:var(--navy-800);font-weight:600;font-family:var(--font);cursor:pointer" onclick="openExpDate()">שינוי</button></span>
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="primary" id="expSave" onclick="saveExpense()" disabled>שליחה לאישור</button>
+      </div>
+    </div>
+
+    <!-- ===== EXPENSE SENT ===== -->
+    <div class="sheet sheet-top" id="expDoneSheet" role="dialog" aria-modal="true" aria-labelledby="expDoneTitle">
+      <div class="grab"></div>
+      <div class="sheet-body" style="padding-top:14px">
+        <div class="done-mini">
+          <span class="dm-v">✓</span>
+          <div><b id="expDoneTitle">ההוצאה נשלחה לאישור</b><span id="expDoneSub"></span></div>
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="primary" onclick="closeSheet(); openExpense(true)">דיווח הוצאה נוספת</button>
+        <button class="secondary" onclick="closeSheet(); reqKind='expense'; show('req')">מעקב בסטטוסים</button>
+      </div>
+    </div>
+
+    <!-- ===== EXPENSE DETAIL ===== -->
+    <div class="sheet sheet-top" id="expDet" role="dialog" aria-modal="true" aria-labelledby="edTitle">
+      <div class="grab"></div>
+      <div class="sheet-head"><h2 id="edTitle"></h2><p id="edSub"></p></div>
+      <div class="sheet-body">
+        <div class="statusbox"><span class="stat" id="edStat"></span><span class="sb-txt" id="edStatTxt"></span></div>
+        <div class="metarow"><span class="k">סכום</span><span class="v" id="edAmt"></span></div>
+        <div class="metarow"><span class="k">מספר דיווח</span><span class="v" id="edId"></span></div>
+        <div class="metarow" id="edRecRow"><span class="k">קבלה</span><span class="v" id="edRec"></span></div>
+        <div class="rejbox" id="edRej" style="display:none;margin-top:12px"></div>
+        <div id="edChanges"></div>
+        <div class="timeline" id="edTrack"></div>
+      </div>
+      <div class="sheet-foot" id="edFoot">
+        <button class="primary" id="edFix" onclick="fixExpense()">תיקון ושליחה מחדש</button>
+        <button class="secondary" id="edCancel" onclick="cancelExpense()">ביטול הדיווח</button>
+      </div>
+    </div>
+
+    <!-- ===== ABSENCE ===== -->
+    <div class="sheet" id="absSheet" role="dialog" aria-modal="true" aria-labelledby="absTitle">
+      <div class="grab"></div>
+      <div class="sheet-head">
+        <h2 id="absTitle">דיווח היעדרות</h2>
+        <p>הבקשה תישלח לאישור המנהל.</p>
+      </div>
+
+      <div class="sheet-body">
+        <div class="rejbox fix" id="absFix" style="display:none"></div>
+        <div class="balances" id="balances"></div>
+        <div class="balmsg" id="balMsg" style="display:none"></div>
+
+        <button class="pickrow" id="absTypeRow" onclick="openTypePicker()">
+          <span class="pk-k">סוג ההיעדרות <span class="req">*</span></span>
+          <span class="pk-v" id="absTypeVal">בחירה מהרשימה</span>
+          <span class="pk-c">‹</span>
+        </button>
+
+        <div class="daylock" id="dayLockNote" style="display:none"></div>
+
+        <button class="pickrow" id="absFromRow" onclick="openDatePicker('from')">
+          <span class="pk-k" id="absFromLbl">מתאריך</span>
+          <span class="pk-v" id="absFromVal">1 בספטמבר 2026</span>
+          <span class="pk-c">‹</span>
+        </button>
+
+        <button class="pickrow" id="absToRow" onclick="openDatePicker('to')" style="border-top:1px solid var(--line)">
+          <span class="pk-k">עד תאריך</span>
+          <span class="pk-v" id="absToVal">1 בספטמבר 2026</span>
+          <span class="pk-c">‹</span>
+        </button>
+
+        <div class="daycount" id="dayCount" style="display:none"></div>
+
+        <div class="switchrow" id="fullDayRow">
+          <span class="sw-t"><b id="fullDayLabel">יום מלא</b><span id="fullDaySub">ההיעדרות על כל היום</span></span>
+          <button class="sw on" id="fullDaySw" role="switch" aria-checked="true" onclick="toggleFullDay()"><i></i></button>
+        </div>
+
+        <div class="switchrow" id="workOnlyRow">
+          <span class="sw-t"><b>ימי עבודה בלבד</b><span id="workOnlySub">סופי שבוע וחגים לא נספרים</span></span>
+          <button class="sw on" id="workOnlySw" role="switch" aria-checked="true" onclick="toggleWorkOnly()"><i></i></button>
+        </div>
+
+        <div id="absDurBlock" style="display:none">
+          <div class="field" style="margin-top:6px">
+            <label style="text-align:center">משך ההיעדרות</label>
+            <div class="wheel" id="durWheel">
+              <div class="band"></div>
+              <div class="col" id="colDH" tabindex="0" aria-label="שעות"></div>
+              <div class="colon">:</div>
+              <div class="col" id="colDM" tabindex="0" aria-label="דקות"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="reason" id="absDocBlock">
+          <label id="absDocLabel">צירוף אישור</label>
+          <button class="dropzone" id="absDocBtn" onclick="attachDoc()">
+            <span>+ צירוף אישור</span>
+            <span class="dz-sub">צילום או קובץ מהמכשיר</span>
+          </button>
+          <div class="chip" id="absDocChip" style="display:none">
+            <span id="absDocName"></span>
+            <button onclick="removeDoc()" aria-label="הסרה">✕</button>
+          </div>
+        </div>
+
+        <details class="more">
+          <summary>פרטים נוספים</summary>
+        <button class="pickrow" id="absBudgetRow" onclick="openListPicker('absBudget')">
+          <span class="pk-k">סעיף תקציבי</span>
+          <span class="pk-v empty" id="absBudgetVal">ללא</span>
+          <span class="pk-c">‹</span>
+        </button>
+        <button class="pickrow" id="absSubRow" onclick="openListPicker('absSub')" style="border-top:1px solid var(--line)">
+          <span class="pk-k">תת סעיף</span>
+          <span class="pk-v empty" id="absSubVal">ללא</span>
+          <span class="pk-c">‹</span>
+        </button>
+
+        <div class="reason">
+          <label for="absNote">הערה למנהל</label>
+          <textarea id="absNote" rows="2" placeholder="לא חובה"></textarea>
+        </div>
+        </details>
+        <!-- ההיעדרויות הקרובות עברו למסך "סטטוסים" -->
+        <div class="upcoming" id="upcoming" style="display:none"></div>
+      </div>
+
+      <div class="sheet-foot">
+        <button class="primary" id="absSaveBtn" onclick="saveAbsence()" disabled>שמירת ההיעדרות</button>
+      </div>
+    </div>
+
+    <!-- ===== PROJECT HOURS ===== -->
+    <div class="sheet sheet-top" id="projSheet" role="dialog" aria-modal="true" aria-labelledby="projTitle">
+      <div class="grab"></div>
+      <div class="sheet-head">
+        <h2 id="projTitle">שעות פרויקטים</h2>
+        <p id="projSub"></p>
+      </div>
+      <div class="sheet-body" id="projBody" style="padding-bottom:20px"></div>
+    </div>
+
+    <!-- ===== REQUEST DETAIL ===== -->
+    <div class="sheet sheet-top" id="reqSheet" role="dialog" aria-modal="true" aria-labelledby="reqSheetTitle">
+      <div class="grab"></div>
+      <div class="sheet-head">
+        <h2 id="reqSheetTitle">חופשה</h2>
+        <p id="reqSheetDates"></p>
+      </div>
+      <div class="sheet-body">
+        <div class="statusbox" id="reqStatusBox">
+          <span class="sb-tag" id="reqStatusTag">בהמתנה</span>
+          <span class="sb-txt" id="reqStatusTxt"></span>
+        </div>
+
+        <div class="metarow"><span class="k">משך</span><span class="v" id="reqLenVal"></span></div>
+        <div class="metarow"><span class="k">ספירת ימים</span><span class="v" id="reqCountVal"></span></div>
+        <div class="metarow" id="reqDocRow"><span class="k">אישור מצורף</span><span class="v" id="reqDocVal"></span></div>
+
+        <div class="reason" id="reqNoteBlock">
+          <label>ההערה שכתבת</label>
+          <div class="val" id="reqNoteVal"></div>
+        </div>
+
+        <div class="reason" id="reqRejBlock" style="display:none">
+          <label style="color:#9B2C2C">סיבת הדחייה</label>
+          <div class="val" id="reqRejVal" style="border-color:#F5C6C6;background:#FDECEC"></div>
+        </div>
+
+        <div class="timeline" id="reqTimeline"></div>
+      </div>
+      <div class="sheet-foot" id="reqFoot">
+        <button class="primary" id="reqFixBtn" style="display:none" onclick="fixAbsence()">תיקון ושליחה מחדש</button>
+        <button class="secondary" id="reqCancelBtn" onclick="cancelCurrentReq()">ביטול הבקשה</button>
+      </div>
+    </div>
+
+    <!-- ===== ABSENCE SAVED ===== -->
+    <div class="sheet sheet-top" id="absDoneSheet" role="dialog" aria-modal="true" aria-labelledby="absDoneTitle">
+      <div class="grab"></div>
+      <div class="sheet-body" style="padding-top:14px">
+        <div class="done-mini">
+          <span class="dm-v">✓</span>
+          <div>
+            <b id="absDoneTitle">ההיעדרות נשמרה</b>
+            <span id="absDoneSub"></span>
+          </div>
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="primary" onclick="absAgain()">דיווח היעדרות נוספת</button>
+        <button class="secondary" onclick="absHome()">חזרה למסך הבית</button>
+      </div>
+    </div>
+
+    <!-- ===== GENERIC LIST PICKER ===== -->
+    <div class="sheet sheet-top" id="listSheet" role="dialog" aria-modal="true" aria-labelledby="listSheetTitle">
+      <div class="grab"></div>
+      <div class="sheet-head">
+        <h2 id="listSheetTitle">סעיף תקציבי</h2>
+        <p id="listSheetSub">לא חובה. אפשר לשמור בלי לבחור.</p>
+      </div>
+      <div class="sheet-body" id="listSheetBody" style="padding-bottom:20px"></div>
+    </div>
+
+    <!-- ===== DATE PICKER ===== -->
+    <div class="sheet sheet-top" id="dateSheet" role="dialog" aria-modal="true" aria-labelledby="dateSheetTitle">
+      <div class="grab"></div>
+      <div class="sheet-head">
+        <h2 id="dateSheetTitle">תאריך תחילת ההיעדרות</h2>
+      </div>
+      <div class="sheet-body" style="padding-bottom:20px">
+        <div class="monthnav">
+          <button onclick="navMonth(-1)" aria-label="חודש קודם">›</button>
+          <b id="pickMonth">ספטמבר 2026</b>
+          <button onclick="navMonth(1)" aria-label="חודש הבא">‹</button>
+        </div>
+        <div class="cal-head" style="margin-top:6px">
+          <span>א׳</span><span>ב׳</span><span>ג׳</span><span>ד׳</span><span>ה׳</span><span>ו׳</span><span>ש׳</span>
+        </div>
+        <div class="cal-grid" id="pickGrid"></div>
+      </div>
+    </div>
+
+    <!-- ===== ABSENCE TYPE PICKER ===== -->
+    <div class="sheet sheet-top" id="typeSheet" role="dialog" aria-modal="true" aria-labelledby="typeSheetTitle">
+      <div class="grab"></div>
+      <div class="sheet-head">
+        <h2 id="typeSheetTitle">סוג ההיעדרות</h2>
+      </div>
+      <div class="searchwrap">
+        <input id="typeSearch" placeholder="חיפוש סוג היעדרות" oninput="paintTypes(this.value)">
+      </div>
+      <div class="sheet-body" id="typelistBody" style="padding-top:0"></div>
+    </div>
+
+    <!-- ===== SHEET ===== -->
+    <div class="scrim" id="scrim" onclick="closeSheet()"></div>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="grab"></div>
+      <div class="sheet-head">
+        <h2 id="sheetTitle">מתי סיימת?</h2>
+        <p id="sheetSub">נכנסת ב־10:28 ולא נרשמה יציאה. הוסיפו את שעת היציאה כדי לסגור את היום.</p>
+      </div>
+
+      <div class="sheet-body">
+        <div class="wheel" id="wheel">
+          <div class="band" id="band"></div>
+          <div class="col" id="colH" tabindex="0" aria-label="שעה"></div>
+          <div class="colon">:</div>
+          <div class="col" id="colM" tabindex="0" aria-label="דקות"></div>
+        </div>
+
+        <div class="typed" id="typed">
+          <input id="inH" inputmode="numeric" maxlength="2" aria-label="שעה">
+          <div class="colon">:</div>
+          <input id="inM" inputmode="numeric" maxlength="2" aria-label="דקות">
+        </div>
+
+        <button class="mode-toggle" id="modeBtn" onclick="toggleMode()">הקלדה ידנית</button>
+
+        <div class="vmsg" id="vmsg" style="display:none"></div>
+        <div class="nextday-note" id="crossNote" style="display:none"></div>
+
+        <div class="impact">
+          <span class="k">סה״כ היום אחרי השינוי</span>
+          <span class="v" id="impactVal">7:12</span>
+        </div>
+
+        <div class="reason" id="reasonBlock">
+          <label for="reasonBox" id="reasonLabel">סיבת ההשלמה</label>
+          <textarea id="reasonBox" rows="2" placeholder="למשל: שכחתי להחתים ביציאה"
+                    oninput="onReason(this.value)"></textarea>
+          <span class="reason-note">נשמר עם הדיווח ומוצג למנהל באישור</span>
+        </div>
+
+        <div class="metarow">
+          <span class="k">תאריך</span>
+          <span><span class="v" id="sheetDate">1 בספטמבר 2026</span><span class="lockhint">נקבע לפי היום</span></span>
+        </div>
+
+        <div class="field" id="punchTypeField">
+          <label id="punchTypeLabel">סוג הדיווח <span class="req">*</span></label>
+          <div class="typelist" id="typeList"></div>
+        </div>
+
+        <details class="more" id="moreBlock">
+          <summary>פרטים נוספים</summary>
+          <button class="pickrow" id="budgetField" onclick="openListPicker('budget')">
+            <span class="pk-k">סעיף תקציבי</span>
+            <span class="pk-v empty" id="budgetVal">ללא</span>
+            <span class="pk-c">‹</span>
+          </button>
+          <button class="pickrow" id="subBudgetField" style="display:none" onclick="openListPicker('sub')">
+            <span class="pk-k">תת סעיף</span>
+            <span class="pk-v empty" id="subBudgetVal">ללא</span>
+            <span class="pk-c">‹</span>
+          </button>
+        </details>
+      </div>
+
+      <div class="sheet-foot">
+        <button class="primary" id="saveBtn" onclick="save()">שמירת היציאה</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="restart" onclick="location.reload()">איפוס הדמו</button>
+</div>
+
+<script>
+/* ---------------- data ---------------- */
+const STD = 432; // 7:12 בדקות
+const DOW = ["יום ראשון","יום שני","יום שלישי","יום רביעי","יום חמישי","יום שישי","שבת"];
+const TASKS = ["פיתוח מודול משאבי אנוש","מחולל הטפסים","הרמוני"];
+const TODAY = new Date(2026, 8, 1);
+// אוגוסט 2026 מתחיל בשבת, ולכן 2 באוגוסט הוא יום ראשון
+const augDow = d => (d - 2) % 7;
+const AUG_POOL_OLD = [5,6,9,11,12,13,16,18,19,20,25];  // מחזור קודם, סגור לשכר
+let days = {};
+
+function buildDays(count){
+  // שלושה מצבי חוסר, אחד מכל סוג
+  days = {
+    "sep1":{
+      name:"1 בספטמבר", dow:"יום שלישי", m:9, d:1, missing:"exit",
+      punches:[
+        {in:"07:01", out:"10:28", task:TASKS[0]},
+        {in:"10:28", out:null,    task:TASKS[0]}
+      ],
+      extras:[{name:"תוספת שטיפת רכב", value:"1.03 שעות"}],
+      fixed:false
+    },
+    "aug31":{
+      name:"31 באוגוסט", dow:DOW[augDow(31)], m:8, d:31, missing:"entry",
+      punches:[{in:null, out:"17:07", task:TASKS[1]}],
+      fixed:false
+    },
+    // תיקון נוכחות שהמנהל החזיר לתיקון — מופיע ב"סטטוסים" תחת "דורש פעולה ממך"
+    "aug27":{
+      name:"27 באוגוסט", dow:DOW[augDow(27)], m:8, d:27, missing:"exit", fixed:true,
+      punches:[{in:"08:02", out:null, prevOut:"19:45", task:TASKS[0], reason:"נשארתי לסיים משימה",
+        status:"fix", fixReason:"השעה אינה סבירה — נא לבדוק", fixNote:"לפי היומן יצאת ב־17:30."}]
+    },
+    "aug30":{
+      name:"30 באוגוסט", dow:DOW[augDow(30)], m:8, d:30, missing:"both",
+      punches:[{in:null, out:null, task:TASKS[0]}],
+      fixed:false
+    }
+  };
+
+  // מחזור קודם, לתרחיש העמוס
+  if(count > 3){
+    AUG_POOL_OLD.slice(-(count-3)).sort((a,b)=>b-a).forEach((d,i)=>{
+      const isExit = i % 2 === 0;
+      days["aug"+d] = {
+        prevCycle:true, name: d + " באוגוסט", dow: DOW[augDow(d)],
+        m:8, d:d, missing: isExit ? "exit" : "entry",
+        punches:[ isExit
+          ? {in: String(7 + (i%3)).padStart(2,'0') + ":" + String(4 + i*3).padStart(2,'0'), out:null, task:TASKS[i%3]}
+          : {in:null, out: String(16 + (i%2)).padStart(2,'0') + ":" + String(5 + i*2).padStart(2,'0'), task:TASKS[i%3]}
+        ],
+        fixed:false
+      };
+    });
+  }
+}
+buildDays(3);
+// ימי עבודה — פרמטר לקוח. כאן: ראשון עד חמישי
+const WORK_DAYS = [0,1,2,3,4];
+const MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+let WORKED_MIN = 29*60 + 38;   // דמו: שעות שנצברו במחזור
+const CONFIG = {
+  showBudgetItem: true,     // הצגת סעיף תקציבי
+  showSubBudgetItem: true,  // תת סעיף — תלוי בהורה
+  cycleStartDay: 27,        // יום תחילת מחזור השכר
+  breakPunches: true,       // האם קיימות החתמות יציאה/חזרה מהפסקה
+  balanceOverdraft: "warn"  // חריגה מהיתרה: "warn" מתריע ומאפשר, "block" חוסם
+};
+// סוגי החתמה — מגיעים מהגדרת הלקוח, לא מהקוד
+const PUNCH_TYPES_IN  = [
+  {n:"כניסה לעבודה"}, {n:"כניסה לפרויקט"},
+  {n:"חזרה מהפסקה", brk:true}, {n:"כניסה מהבית"}
+];
+const PUNCH_TYPES_OUT = [
+  {n:"יציאה מהעבודה"}, {n:"יציאה לפרויקט"},
+  {n:"יציאה להפסקה", brk:true}, {n:"סיום עבודה מהבית"}
+];
+let punchType = null;
+// סעיפים תקציביים — מגיעים מהגדרת הלקוח
+const BUDGET_ITEMS = [
+  {n:"פיתוח מודול משאבי אנוש", subs:["אפיון ו-UX", "פיתוח", "בדיקות"]},
+  {n:"מחולל הטפסים",           subs:["אפיון ו-UX", "פיתוח"]},
+  {n:"הרמוני",                 subs:["אונבורדינג", "אופבורדינג", "מסמכים"]},
+  {n:"תשתיות",                 subs:[]}
+];
+let budgetItem = null, subBudget = null, listTarget = 'budget';
+let absBudget = null, absSub = null;
+let cur = null, curH = 14, curM = 13, typedMode = false;
+let sheetMode = "complete", newStep = 1, newEntry = null, newTargetIdx = null;
+let reasonText = "";
+
+// היום המסומן בלוח — תפריט היום פועל עליו. ברירת מחדל: היום הנוכחי
+let pickedM = 9, pickedD = 1;
+
+/* ---------------- calendar ---------------- */
+// מה קרה בכל יום במחזור — מגיע מהשרת
+const DAY_DATA = {
+  "8-30":{st:"ok", h:"7:40"},
+  "8-31":{st:"absence", label:"מחלה"}
+};
+// בקשות שממתינות לאישור מנהל
+let pendingReqs = [{
+  type:"חופשה", dates:["9-3","9-6"], days:2, status:"pending",
+  full:true, workOnly:true, note:"סופ״ש ארוך עם המשפחה", doc:null,
+  sentAt:"28 באוגוסט, 09:14", manager:"שרון לוי"
+}];
+let doneReqs = [
+  {type:"מחלה — יום בודד", dates:["8-26"], days:1, status:"fix",
+   full:true, workOnly:true, note:"", doc:null,
+   sentAt:"26 באוגוסט, 07:40", decidedAt:"26 באוגוסט, 11:15", manager:"שרון לוי",
+   fixReason:"חסר מסמך או קבלה", fixNote:"נא לצרף אישור מחלה."},
+  {type:"מחלה", dates:["8-31"], days:1, status:"approved",
+   full:true, workOnly:true, note:"", doc:"אישור.pdf",
+   sentAt:"31 באוגוסט, 08:02", decidedAt:"31 באוגוסט, 10:40", manager:"שרון לוי"},
+  {type:"חופשה", dates:["8-24"], days:1, status:"rejected",
+   full:true, workOnly:true, note:"יום חופש", doc:null,
+   sentAt:"20 באוגוסט, 16:30", decidedAt:"21 באוגוסט, 08:15", manager:"שרון לוי",
+   rejectReason:"יש שני אנשים בחופשה באותו יום. אפשר להעביר ל־25 או ל־26."}
+];
+let curReq = null;
+// שעות שדווחו על פרויקטים במחזור
+const PROJECT_HOURS = [
+  {n:"פיתוח מודול משאבי אנוש", sub:"אפיון ו-UX", m: 11*60 + 25},
+  {n:"מחולל הטפסים",           sub:"פיתוח",     m: 5*60 + 10},
+  {n:"הרמוני",                 sub:"אונבורדינג", m: 1*60 + 45}
+];
+
+function openProjects(){
+  const total = PROJECT_HOURS.reduce((a,p)=>a+p.m, 0);
+  const max = Math.max(...PROJECT_HOURS.map(p=>p.m));
+  document.getElementById('projSub').textContent =
+    `${toStr(total)} מתוך ${toStr(WORKED_MIN)} שעות העבודה במחזור`;
+  const body = document.getElementById('projBody');
+  body.innerHTML = "";
+  PROJECT_HOURS.forEach(p=>{
+    const r = document.createElement('div');
+    r.className = "projrow";
+    r.innerHTML = `<div class="pr-top"><b>${p.n}</b><span class="pr-h">${toStr(p.m)}</span></div>
+      <div class="pr-bar"><i style="width:${Math.round(p.m/max*100)}%"></i></div>
+      <span class="pr-sub">${p.sub} · ${Math.round(p.m/total*100)}% מהשעות שדווחו</span>`;
+    body.appendChild(r);
+  });
+  // שעות שדווחו בלי סעיף תקציבי — שורה נפרדת בסוף, כדי שהסכום יתאים לשעות המחזור
+  const rest = WORKED_MIN - total;
+  if(rest > 0){
+    const r = document.createElement('div');
+    r.className = "projrow";
+    r.innerHTML = `<div class="pr-top"><b style="color:var(--muted)">ללא שיוך לפרויקט</b><span class="pr-h" style="color:var(--muted)">${toStr(rest)}</span></div>
+      <span class="pr-sub">שעות שדווחו בלי סעיף תקציבי</span>`;
+    body.appendChild(r);
+  }
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('projSheet').classList.add('on');
+}
+function applyPending(){
+  Object.keys(DAY_DATA).forEach(k=>{ if(DAY_DATA[k].st === "pending") delete DAY_DATA[k]; });
+  pendingReqs.forEach(r => r.dates.forEach(k => { DAY_DATA[k] = {st:"pending", label:r.type}; }));
+}
+applyPending();
+
+// ימים שחסר בהם דיווח. ימים שנוצרו רק כדי לפתוח עליהם את תפריט היום אינם נכללים
+function keyFor(m,d){
+  return Object.keys(days).find(k=>days[k].m===m && days[k].d===d && !days[k].stub) || null;
+}
+
+// מחזיר את היום המבוקש. יום שאין לו רשומה נוצר כיום תקין, כדי שאפשר יהיה להוסיף עליו
+function ensureDay(m,d){
+  const k = keyFor(m,d);
+  if(k) return k;
+  const sk = `stub-${m}-${d}`;
+  if(!days[sk]){
+    const dt = new Date(2026, m-1, d);
+    const past = dt <= TODAY && WORK_DAYS.includes(dt.getDay());
+    days[sk] = {
+      stub:true, name:`${d} ב${MONTHS[m-1]}`, dow:DOW[dt.getDay()], m, d,
+      missing:null, fixed:true, extras:[],
+      punches: past ? [{in:"08:00", out:"15:12", task:TASKS[0]}] : []
+    };
+  }
+  return sk;
+}
+function hasFix(d){ return (d.punches||[]).some(p=>p.status==="fix"); }
+function isFuture(d){ return new Date(2026, d.m-1, d.d) > TODAY; }
+
+// הלוח מציג את מחזור השכר ולא חודש קלנדרי
+function cycleRange(){
+  const start = new Date(2026, 7, CONFIG.cycleStartDay);
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + 1);
+  end.setDate(end.getDate() - 1);
+  return {start, end};
+}
+
+function pickDay(m,d){
+  pickedM = m; pickedD = d;
+  buildGrid();
+}
+
+function buildGrid(){
+  const g = document.getElementById('grid');
+  g.innerHTML = "";
+  const {start, end} = cycleRange();
+
+  const first = new Date(start);
+  first.setDate(first.getDate() - first.getDay());
+  const last = new Date(end);
+  last.setDate(last.getDate() + (6 - last.getDay()));
+
+  const d = new Date(first);
+  while(d <= last){
+    const inCycle = d >= start && d <= end;
+    const dm = d.getMonth()+1, dd = d.getDate();
+    const b = document.createElement('button');
+    b.className = "day";
+    b.textContent = dd;
+    if(!inCycle) b.classList.add('out');
+    else if(!WORK_DAYS.includes(d.getDay())) b.classList.add('weekend');
+    if(dm === 9 && dd === 1) b.classList.add('today');
+
+    const dk = `${dm}-${dd}`;
+    const past = d <= TODAY;
+    const flagged = keyFor(dm, dd);
+    let info = DAY_DATA[dk];
+    if(!info && flagged){
+      const fa = fullAbsence(days[flagged]);
+      info = fa ? {st:"pending", label: fa.name}
+        : hasFix(days[flagged]) ? {st:"missing", fixTag:true}
+        : days[flagged].fixed ? {st:"ok", h: toStr(dayTotal(flagged))}
+        : {st:"missing"};
+    }
+    if(!info && inCycle && past && WORK_DAYS.includes(d.getDay())) info = {st:"ok", h:"7:12"};
+    if(info && inCycle){
+      b.classList.add("st-" + info.st);
+      const tag = document.createElement('span');
+      tag.className = "daytag";
+      tag.textContent = info.st === "missing" ? (info.fixTag ? "לתיקון" : "חסר")
+        : info.st === "absence" ? info.label
+        : info.st === "pending" ? info.label
+        : info.h || "";
+      if(tag.textContent) b.appendChild(tag);
+    }
+
+    // יום שדווחה בו הוצאה — סימן ₪ בפינת התא
+    if(inCycle && (expenses || []).some(x=>x.m===dm && x.d===dd)){
+      const em = document.createElement('span');
+      em.className = "expmark"; em.textContent = "₪";
+      b.appendChild(em);
+    }
+
+    const key = inCycle ? flagged : null;
+    if(key){
+      if(days[key].fixed && !hasFix(days[key])){
+        b.classList.remove('st-missing');
+        b.classList.add('st-ok','fixed');
+        const t = b.querySelector('.daytag');
+        if(t) t.textContent = toStr(dayTotal(key));
+      }
+      b.onclick = ()=>openDay(key);
+      b.setAttribute('aria-label', days[key].name + (days[key].fixed ? " — הושלם" : " — ממתין להשלמה"));
+    }else if(inCycle){
+      // כל יום נפתח במסך היום — ההתנהגות זהה לכל הימים
+      b.onclick = ()=>openDay(ensureDay(dm, dd));
+      b.setAttribute('aria-label', `${dd} ב${MONTHS[dm-1]}`);
+    }else{
+      b.disabled = true;
+    }
+    g.appendChild(b);
+    d.setDate(d.getDate() + 1);
+  }
+}
+buildGrid();
+
+/* ---------------- navigation ---------------- */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('scr-'+id).classList.add('on');
+  document.getElementById('body').scrollTop = 0;
+  const back = document.getElementById('backBtn');
+  document.querySelector('.appbar').style.display = (id==='home') ? 'none' : 'flex';
+  if(id==='home'){
+    document.getElementById('barTitle').textContent = "ענת וינטראוב";
+    document.getElementById('barSub').textContent = "נוכחות";
+    back.style.display = "none";
+    refreshHome();
+  }else if(id==='month'){
+    document.getElementById('barTitle').textContent = "נוכחות והיעדרות";
+    document.getElementById('barSub').textContent = "מחזור 27 באוגוסט – 26 בספטמבר";
+    back.style.display = "block";
+    refreshMonth();
+  }else if(id==='sum'){
+    document.getElementById('barTitle').textContent = "סיכומים";
+    document.getElementById('barSub').textContent = "מחזור 27 באוגוסט – 26 בספטמבר";
+    back.style.display = "block";
+    refreshMonth();
+  }else if(id==='mgr'){
+    document.getElementById('barTitle').textContent = "אזור מנהל";
+    document.getElementById('barSub').textContent = "";
+    back.style.display = "block";
+    renderMgr();
+  }else if(id==='mgrList'){
+    document.getElementById('barTitle').textContent = "בקשות לאישור";
+    document.getElementById('barSub').textContent = "ממוין לפי תאריך — הוותיקה והקרובה קודם";
+    back.style.display = "block";
+    renderMgrList();
+  }else if(id==='mgrEmp'){
+    back.style.display = "block";
+    renderMgrEmp();
+  }else if(id==='req'){
+    document.getElementById('barTitle').textContent = "סטטוסים";
+    document.getElementById('barSub').textContent = "מחזור 27 באוגוסט – 26 בספטמבר";
+    back.style.display = "block";
+    refreshReq();
+  }else if(id==='list'){
+    document.getElementById('barTitle').textContent = "דיווחים להשלמה";
+    document.getElementById('barSub').textContent = "מחזור 27 באוגוסט – 26 בספטמבר";
+    back.style.display = "block";
+    refreshList();
+  }else{
+    back.style.display = "block";
+  }
+}
+document.getElementById('backBtn').onclick = ()=>{
+  const at = document.querySelector('.screen.on').id;
+  if(at === 'scr-list' || at === 'scr-day') show('month');
+  else if(at === 'scr-mgrEmp') show('mgrList');
+  else if(at === 'scr-mgrList') show('mgr');
+  else show('home');
+};
+
+// כרטיס השעות בדף הבית הוא הכניסה לסיכומים — הוא כבר מראה את הכותרת שלהם
+document.getElementById('heroCard').addEventListener('click', e=>{
+  if(e.target.closest('button')) return;
+  show('sum');
+});
+
+// הכניסה הקיימת: לחיצה על אזור כלשהו בדף הבית פותחת את מסך נוכחות. נשמרת לצד הכפתור הגלוי
+document.getElementById('hero').addEventListener('click', e=>{
+  if(e.target.closest('button')) return;
+  show('month');
+});
+
+
+// "דיווחים חסרים" בדף הבית פותח ישר את היום החסר הראשון. אחרי השמירה — "מעבר ליום הבא"
+function openFirstMissing(){
+  const open = Object.keys(days).filter(isOpen);
+  if(open.length) openDay(open[0]); else show('month');
+}
+
+function refreshHome(){
+  const open = Object.keys(days).filter(isOpen);
+  document.getElementById('homeBadge').textContent = open.length;
+  document.getElementById('missingLink').style.display = open.length ? "flex" : "none";
+  document.getElementById('allGood').style.display = open.length ? "none" : "flex";
+  // מונים על הכפתורים: ימים להשלמה, ובקשות שממתינות או הוחזרו לתיקון
+  const st = allRequests().filter(x=>x.status === "wait" || x.status === "fix").length;
+  const ts = document.getElementById('tbStat');
+  ts.textContent = st; ts.style.display = st ? "flex" : "none";
+  if(typeof refreshMgrBadge === "function") refreshMgrBadge();
+}
+
+function refreshMonth(){
+  const open = Object.keys(days).filter(isOpen).map(k=>days[k]);
+  document.getElementById('missBar').style.display = open.length ? "flex" : "none";
+  document.getElementById('okBar').style.display = open.length ? "none" : "block";
+  document.getElementById('missN').textContent = open.length;
+  document.getElementById('missTxt').textContent = open.length === 1 ? "יום אחד להשלמה" : "ימים להשלמה";
+
+  // כמה ימי עבודה במחזור, וכמה מהם כבר עברו
+  const {start, end} = cycleRange();
+  let cycleDays = 0, elapsed = 0;
+  const d = new Date(start);
+  while(d <= end){
+    if(WORK_DAYS.includes(d.getDay())){
+      cycleDays++;
+      if(d <= TODAY) elapsed++;
+    }
+    d.setDate(d.getDate()+1);
+  }
+  const target   = cycleDays * STD;      // תקן המחזור
+  const expected = elapsed * STD;        // התקן עד היום
+  const worked   = WORKED_MIN;
+
+  document.getElementById('hsWorked').textContent = toStr(worked);
+  document.getElementById('hsBar').style.width  = Math.min(100, worked/target*100) + "%";
+  document.getElementById('hsTick').style.right = (expected/target*100) + "%";
+
+  const gap = worked - expected;
+  const remaining = Math.max(0, target - worked);
+  const daysLeft = cycleDays - elapsed;
+  const perDay = daysLeft > 0 ? Math.round(remaining / daysLeft) : 0;
+
+  const v = document.getElementById('hsVerdict');
+  v.classList.toggle('warn', gap < 0);
+  v.innerHTML = gap === 0
+    ? `<b>0:00</b>בדיוק בתקן`
+    : gap > 0
+      ? `<b>${toStr(gap)}</b>מעל התקן`
+      : `<b>${toStr(-gap)}</b>להשלמה`;
+
+  document.getElementById('hsTargetEnd').textContent = `תקן המחזור ${toStr(target)}`;
+  document.getElementById('hsTodayMark').textContent = `התקן להיום ${toStr(expected)}`;
+
+  document.getElementById('hsNote').innerHTML = daysLeft > 0
+    ? `נותרו <b>${toStr(remaining)}</b> ב־<b>${daysLeft}</b> ימי עבודה — <b>${toStr(perDay)}</b> ליום בממוצע`
+    : `המחזור הסתיים · סה״כ <b>${toStr(worked)}</b> מתוך <b>${toStr(target)}</b>`;
+
+  // רק מה שדורש פעולה מופיע כאן. אפסים לא מוצגים בכלל.
+  const chips = [
+    {n: open.length, t:"ימים להשלמה", warn:true, go:()=>show('list')},
+    {n: allRequests().filter(x=>x.status === "wait").length, t:"ממתינים לאישור",
+     go:()=>{ reqTab = "wait"; reqKind = "all"; show('req'); }}
+  ].filter(c=>c.n > 0);
+
+  const cw = document.getElementById('actChips');
+  cw.innerHTML = "";
+  if(!chips.length){
+    cw.innerHTML = '<span class="hs-note" style="padding:2px 0">אין פעולות פתוחות במחזור הזה</span>';
+  }
+  chips.forEach(c=>{
+    const b = document.createElement('button');
+    b.className = "act-chip" + (c.warn ? " warn" : "");
+    b.innerHTML = `<span class="n">${c.n}</span><span>${c.t}</span><span class="c">‹</span>`;
+    b.onclick = c.go;
+    cw.appendChild(b);
+  });
+
+  const approved = doneReqs.filter(r=>r.status==="approved").length;
+  const rejected = doneReqs.filter(r=>r.status==="rejected").length;
+  const projTotal = PROJECT_HOURS.reduce((a,p)=>a+p.m, 0);
+  const expTotal = expenses.filter(x=>x.status === "ok").reduce((a,x)=>a+x.amount, 0);
+  const more = [
+    // כל מדד מוביל למסך עם הסינון שלו, לא לרשימה מלאה
+    {t:"שעות היעדרות", v:"08:24",
+     go:()=>{ reqTab="ok";   reqKind="absence"; show('req'); }},
+    {t:"בקשות שאושרו", v:String(approved),
+     go:()=>{ reqTab="ok";   reqKind="all";     show('req'); }},
+    {t:"בקשות שנדחו",  v:String(rejected),
+     go:()=>{ reqTab="rej";  reqKind="all";     show('req'); }},
+    {t:"שעות פרויקטים", v:toStr(projTotal), go:openProjects},
+    {t:"הוצאות שאושרו", v:"₪" + expTotal.toFixed(0),
+     go:()=>{ reqTab="ok"; reqKind="expense"; show('req'); }}
+  ];
+  const rows = document.getElementById('pmRows');
+  rows.innerHTML = "";
+  more.forEach(m=>{
+    const zero = /^₪?0+(:00)?$/.test(m.v) || m.v === "00:00";
+    const r = document.createElement(zero || !m.go ? 'div' : 'button');
+    r.className = "pm-row" + (zero ? " zero" : (m.go ? " tap" : ""));
+    r.innerHTML = `<span>${m.t}</span>
+      <b>${m.v}${(!zero && m.go) ? ' <span class="pm-c">‹</span>' : ''}</b>`;
+    if(!zero && m.go) r.onclick = m.go;
+    rows.appendChild(r);
+  });
+
+  buildGrid();
+}
+
+function reqDateLabel(r){
+  const parse = k => { const [m,d] = k.split('-').map(Number); return {m,d}; };
+  const a = parse(r.dates[0]), b = parse(r.dates[r.dates.length-1]);
+  const f = x => `${x.d} ב${MONTHS[x.m-1]}`;
+  return r.dates.length === 1 ? f(a) : `${f(a)} – ${f(b)}`;
+}
+
+// סטטוסים בניסוח הרמוני
+const REQ_STATUS = {
+  wait: {t:"בהמתנה",     cls:"wait"},
+  fix:  {t:"הוחזר לתיקון", cls:"fix"},
+  ok:   {t:"מאושר",      cls:"done"},
+  rej:  {t:"נדחה",       cls:"rej"},
+  canceled: {t:"בוטל ע״י העובד", cls:"cxl"}
+};
+let reqTab = "wait", reqKind = "all", reqNewFirst = true;
+function toggleReqSort(){
+  reqNewFirst = !reqNewFirst;
+  document.getElementById('reqSortLbl').textContent =
+    reqNewFirst ? "סטטוס: חדש – ישן" : "סטטוס: ישן – חדש";
+  refreshReq();
+}
+
+// הוצאות — נכנסות לאותה רשימת עדכונים
+var expenses = [
+  {id:"EXP-2026-000123", type:"אוכל / אירוח", amount:126.00, date:"1 בספטמבר", m:9, d:1,
+   status:"wait", sentAt:"1 בספטמבר, 09:12"},
+  {id:"EXP-2026-000121", type:"נסיעות / דלק", amount:210.00, date:"28 באוגוסט", m:8, d:28,
+   status:"ok",   sentAt:"28 באוגוסט, 08:20", decidedAt:"28 באוגוסט, 09:00",
+   transferred:true, transferredAt:"ממשק השכר החודשי, 1 בספטמבר"},
+  {id:"EXP-2026-000120", type:"לינה", amount:62.00, date:"15 באוגוסט", m:8, d:15,
+   status:"rej",  sentAt:"15 באוגוסט, 21:30", decidedAt:"16 באוגוסט, 08:10", receipt:"קבלה.jpg",
+   reason:"נדרש אישור מראש שלא התקבל", note:"לינה דורשת אישור מראש."},
+  {id:"EXP-2026-000119", type:"אוכל / אירוח", amount:96.00, date:"20 באוגוסט", m:8, d:20,
+   status:"fix",  sentAt:"20 באוגוסט, 13:05", decidedAt:"21 באוגוסט, 09:30", receipt:"קבלה.jpg",
+   reason:"הקבלה אינה קריאה", note:"הצילום מטושטש בפינה של הסכום. נא לצלם שוב באור טוב."}
+];
+
+// כל הבקשות במקום אחד: תיקוני נוכחות, היעדרויות והפסקות
+function allRequests(){
+  const out = [];
+
+  Object.keys(days).forEach(k=>{
+    const d = days[k];
+    (d.punches || []).forEach(p=>{
+      if(p.reason){
+        out.push({
+          kind: p.kind === 'break' ? "הפסקה" : "תיקון נוכחות",
+          group: "attendance",
+          ic: p.kind === 'break' ? "☕" : "⏱",
+          when: d.name,
+          what: `${p.in} ← ${p.out ?? p.prevOut}` + (p.kind === 'break' ? "" : ` · ${p.task}`),
+          note: p.reason, key: k,
+          status: p.status || "wait",
+          sentAt: "היום, 12:04"
+        });
+      }
+    });
+  });
+
+  pendingReqs.forEach(r=>out.push({
+    kind:"היעדרות", group:"absence", ic:"☼", when: reqDateLabel(r),
+    what: `${r.type} · ${r.days} ${r.days === 1 ? "יום" : "ימים"}`,
+    note: r.note, status:"wait", sentAt: r.sentAt, req:r
+  }));
+  doneReqs.forEach(r=>out.push({
+    kind:"היעדרות", group:"absence", ic:"☼", when: reqDateLabel(r),
+    what: `${r.type} · ${r.days} ${r.days === 1 ? "יום" : "ימים"}`,
+    note: r.note, status: r.status === "approved" ? "ok" : r.status === "fix" ? "fix" : "rej",
+    sentAt: r.sentAt, decidedAt: r.decidedAt, reject: r.rejectReason, req:r
+  }));
+
+  expenses.forEach(x=>out.push({
+    kind:"הוצאה", group:"expense", ic:"₪", when:x.date,
+    what:`${x.type} · ₪${x.amount.toFixed(2)}`,
+    amount:x.amount, status:x.status, sentAt:x.sentAt, exp:x, label: x.transferred ? "הועבר לשכר" : null
+  }));
+
+  return out;
+}
+
+function openReq(r){
+  curReq = r;
+  const st = r.status === "approved" ? "ok" : r.status === "rejected" ? "rej" : r.status === "fix" ? "fix" : "wait";
+  document.getElementById('reqSheetTitle').textContent = r.type;
+  document.getElementById('reqSheetDates').textContent =
+    `${reqDateLabel(r)} · ${r.days} ${r.days === 1 ? "יום" : "ימים"}`;
+
+  const tag = document.getElementById('reqStatusTag');
+  tag.className = "sb-tag" + (st === "ok" ? " ok" : st === "rej" ? " rej" : "");
+  if(st === "fix"){ tag.style.background = "#E4F7FB"; tag.style.color = "#0A7C90"; tag.style.boxShadow = "inset 0 0 0 1px #B9E7F1"; }
+  else { tag.style.background = ""; tag.style.color = ""; tag.style.boxShadow = ""; }
+  tag.textContent = REQ_STATUS[st].t;
+  document.getElementById('reqStatusTxt').textContent =
+    st === "wait" ? `ממתינה לאישור של ${r.manager || "המנהל"}`
+    : st === "ok" ? `אושרה על ידי ${r.manager || "המנהל"}`
+    : st === "fix" ? `${r.manager || "המנהל"} ביקשה תיקון. אפשר לתקן ולשלוח שוב.`
+    : `נדחתה על ידי ${r.manager || "המנהל"}`;
+
+  document.getElementById('reqLenVal').textContent = r.full ? "ימים מלאים" : "חצאי ימים";
+  document.getElementById('reqCountVal').textContent =
+    r.workOnly ? "ימי עבודה בלבד" : "כולל סופי שבוע";
+
+  const docRow = document.getElementById('reqDocRow');
+  docRow.style.display = r.doc ? "flex" : "none";
+  if(r.doc) document.getElementById('reqDocVal').textContent = r.doc;
+
+  const nb = document.getElementById('reqNoteBlock');
+  nb.style.display = r.note ? "block" : "none";
+  if(r.note) document.getElementById('reqNoteVal').textContent = r.note;
+
+  const rb = document.getElementById('reqRejBlock');
+  const rsn = r.rejectReason || (st === "fix" ? `${r.fixReason}. ${r.fixNote || ""}` : null);
+  rb.style.display = rsn ? "block" : "none";
+  rb.querySelector('label').textContent = st === "fix" ? "מה צריך לתקן" : "סיבת הדחייה";
+  if(rsn) document.getElementById('reqRejVal').textContent = rsn;
+
+  const tl = document.getElementById('reqTimeline');
+  tl.innerHTML = "";
+  const add = (cls, title, sub) => {
+    const it = document.createElement('div');
+    it.className = "tl-item";
+    it.innerHTML = `<span class="tl-dot ${cls}"></span><div><b>${title}</b><span>${sub}</span></div>`;
+    tl.appendChild(it);
+  };
+  add("", "הבקשה נשלחה", r.sentAt || "");
+  if(st === "wait") add("wait", "ממתינה לאישור", r.manager || "המנהל");
+  if(st === "ok")   add("", "אושרה", r.decidedAt || "");
+  if(st === "rej")  add("rej", "נדחתה", r.decidedAt || "");
+  if(st === "fix")  add("", "הוחזרה לתיקון", r.decidedAt || "");
+
+  document.getElementById('reqFoot').style.display = (st === "wait" || st === "fix") ? "block" : "none";
+  document.getElementById('reqCancelBtn').style.display = st === "wait" ? "block" : "none";
+  document.getElementById('reqFixBtn').style.display = st === "fix" ? "block" : "none";
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('reqSheet').classList.add('on');
+}
+
+function closeReq(){
+  document.getElementById('reqSheet').classList.remove('on');
+  document.getElementById('scrim').classList.remove('on');
+}
+
+function cancelCurrentReq(){
+  const i = pendingReqs.indexOf(curReq);
+  if(i > -1) pendingReqs.splice(i,1);
+  applyPending();
+  closeReq();
+  refreshReq();
+  toast("הבקשה בוטלה");
+}
+
+// סטטוסים: רשימה אחת במקטעים לפי מה שדורש פעולה, במקום טאבים
+function refreshReq(){
+  const all = allRequests();
+  const byKind = x => reqKind === "all" ? true : x.group === reqKind;
+
+  const kinds = [
+    {k:"all",        t:"הכל"},
+    {k:"attendance", t:"נוכחות"},
+    {k:"absence",    t:"היעדרות"},
+    {k:"expense",    t:"הוצאות"}
+  ];
+  const kw = document.getElementById('reqKinds');
+  kw.innerHTML = "";
+  kinds.forEach(k=>{
+    const b = document.createElement('button');
+    b.className = "kchip" + (reqKind === k.k ? " on" : "");
+    b.textContent = k.t;
+    b.onclick = ()=>{ reqKind = k.k; refreshReq(); };
+    kw.appendChild(b);
+  });
+  document.getElementById('reqTabs').style.display = "none";
+  document.querySelector('#scr-req .sortrow').style.display = "none";
+
+  const list = all.filter(byKind);
+  const fix  = list.filter(x=>x.status==="fix");
+  const wait = list.filter(x=>x.status==="wait");
+  const done = list.filter(x=>x.status==="ok" || x.status==="rej");
+
+  // סכום — רק בסינון הוצאות
+  const tb = document.getElementById('reqTotal');
+  if(reqKind === "expense"){
+    const sum = st => list.filter(x=>x.status===st).reduce((a,x)=>a+x.amount,0);
+    tb.style.display = "flex";
+    tb.innerHTML = `<span>ממתין ₪${sum("wait").toFixed(0)} · אושר ₪${sum("ok").toFixed(0)}</span><b></b>`;
+  }else tb.style.display = "none";
+
+  const wrap = document.getElementById('reqRows');
+  wrap.innerHTML = "";
+  const row = x => {
+    const st = REQ_STATUS[x.status];
+    const clickable = x.req || x.exp || x.status==="fix";
+    const r = document.createElement(clickable ? 'button' : 'div');
+    r.className = "exp";
+    if(!clickable) r.style.cursor = "default";
+    r.innerHTML = `<span class="rq-kind">${x.ic}</span>
+      <span class="info"><b>${x.kind} · ${x.when}</b><span class="rq-what">${x.what}</span></span>
+      <span class="stat ${st.cls}">${x.status==="fix" ? "לתיקון ‹" : (x.label || st.t)}</span>`;
+    if(x.req) r.onclick = ()=>openReq(x.req);
+    else if(x.exp) r.onclick = ()=>openExpDetail(x.exp);
+    else if(x.key) r.onclick = ()=>openDay(x.key);
+    return r;
+  };
+  const sec = (title, items, cls, emptyTxt) => {
+    const h = document.createElement('div');
+    h.className = "ssec" + (cls ? " " + cls : "");
+    h.innerHTML = `${title} <span class="n">${items.length}</span>`;
+    wrap.appendChild(h);
+    if(!items.length && emptyTxt){ const e = document.createElement('div'); e.className="sempty"; e.textContent = emptyTxt; wrap.appendChild(e); }
+    items.forEach(x=>wrap.appendChild(row(x)));
+  };
+  if(fix.length) sec("דורש פעולה ממך", fix, "act");
+  sec("ממתין למנהל", wait, "", "אין בקשות שממתינות לאישור");
+  const det = document.createElement('details');
+  det.className = "decided";
+  if(reqTab === "ok" || reqTab === "rej" || (!fix.length && !wait.length)) det.open = true;
+  const sm = document.createElement('summary');
+  sm.innerHTML = `<div class="ssec">הוחלט לאחרונה <span class="n">${done.length}</span></div>`;
+  det.appendChild(sm);
+  done.forEach(x=>det.appendChild(row(x)));
+  wrap.appendChild(det);
+}
+
+function missingRow(k){
+  const d = days[k];
+  const what = d.missing==='both' ? 'אין דיווח כלל — חסרות כניסה ויציאה'
+    : d.missing==='exit' ? 'חסרה שעת יציאה' : 'חסרה שעת כניסה';
+
+  if(isLocked(k)){
+    const row = document.createElement('div');
+    row.className = "mrow locked";
+    row.innerHTML = `<span class="info"><b>${d.name}</b>
+      <span>${what} · לא ניתן להשלמה — המחזור נסגר</span></span>
+      <span class="cta closed">נעול</span>`;
+    return row;
+  }
+
+  const b = document.createElement('button');
+  b.className = "mrow";
+  b.innerHTML = `<span class="info"><b>${d.name}</b><span>${what}</span></span>
+    <span class="cta">השלמה</span>`;
+  b.onclick = ()=>openDay(k);
+  return b;
+}
+
+function refreshList(){
+  const open = Object.keys(days).filter(isOpen);
+  document.getElementById('listCount').textContent =
+    open.length === 1 ? "יום אחד ממתין להשלמה" : `${open.length} ימים ממתינים להשלמה`;
+
+  const heavy = document.getElementById('heavyNote');
+  heavy.style.display = open.length >= 8 ? "flex" : "none";
+
+  const wrap = document.getElementById('listRows');
+  wrap.innerHTML = "";
+  const old = Object.keys(days).filter(k => days[k].prevCycle && !days[k].fixed);
+  const section = (title, keys, sub) => {
+    if(!keys.length) return;
+    const h = document.createElement('div');
+    h.className = "grouphead";
+    h.innerHTML = title + (sub ? ` <span style="font-weight:400">· ${sub}</span>` : "");
+    wrap.appendChild(h);
+    keys.forEach(k=>wrap.appendChild(missingRow(k)));
+  };
+  section("המחזור הנוכחי", open);
+  section("מחזור קודם", old, "נסגר לשכר — לצפייה בלבד");
+
+  const done = Object.keys(days).filter(k=>!isOpen(k) && !days[k].stub && !days[k].prevCycle);
+  const dwrap = document.getElementById('listDone');
+  document.getElementById('doneSect').style.display = done.length ? "block" : "none";
+  document.getElementById('doneHead').textContent = `הושלמו (${done.length})`;
+  dwrap.innerHTML = "";
+  done.forEach(k=>{
+    const d = days[k];
+    const row = document.createElement('div');
+    row.className = "mrow";
+    row.style.cursor = "default";
+    const fa = fullAbsence(d);
+    row.innerHTML = `<span class="info"><b>${d.name}</b>
+      <span>${fa ? `${fa.name} · ${fa.value}` : "הושלם ונשלח לאישור"}</span></span>
+      <span class="cta done">✓</span>`;
+    dwrap.appendChild(row);
+  });
+}
+
+/* ================= היעדרות ================= */
+// hourly ו-doc חייבים להגיע מטבלת סוגי ההיעדרות של הלקוח, לא מהקוד
+const ABSENCE_TYPES = [
+  {g:"מחלה",  n:"מחלה — יום בודד",        doc:true,  min:null, max:1},
+  {g:"מחלה",  n:"מחלה — יום 1 ללא תשלום", doc:true},
+  {g:"מחלה",  n:"מחלה — ימים 2–3",        doc:true},
+  {g:"מחלה",  n:"מחלה — יום 4 ואילך",     doc:true},
+  {g:"חופשה", n:"חופשה", min:null, max:14},
+  {g:"חופשה", n:"יום בחירה", min:null, max:1},
+  {g:"חופשה", n:"נופש חברה"},
+  {g:"משפחה", n:"מחלת בן משפחה",  doc:true},
+  {g:"משפחה", n:"מחלת הורה",      doc:true},
+  {g:"משפחה", n:"אבל"},
+  {g:"משפחה", n:"נישואין"},
+  {g:"משפחה", n:"היעדרות בגין היריון", doc:true},
+  {g:"אחר",   n:"מילואים",       doc:true, min:null, max:null},
+  {g:"אחר",   n:"תאונת עבודה",   doc:true},
+  {g:"אחר",   n:"חו״ל",          hourly:true},
+  {g:"אחר",   n:"השתלמות",       hourly:true}
+];
+let recentTypes = ["חופשה", "מחלה — יום בודד"];
+// יתרות מהרמוני. v === null = לא מוגדרת מכסה, ואין אכיפה
+const BALANCES = [
+  {k:"חופשה",     label:"ימי חופשה", v:12.5},
+  {k:"מחלה",      label:"ימי מחלה",  v:8},
+  {k:"יום בחירה", label:"ימי בחירה", v:2}
+];
+// לאיזו יתרה נזקף כל סוג היעדרות
+function balanceKey(t){
+  if(!t) return null;
+  if(t.n.startsWith("מחלה")) return "מחלה";
+  if(t.n === "יום בחירה") return "יום בחירה";
+  if(t.n === "חופשה" || t.n === "נופש חברה") return "חופשה";
+  return null;   // מילואים, אבל, תאונת עבודה — לא נזקפים ליתרה
+}
+let absType = null, absDoc = null;
+let fullDay = true, workOnly = true, partialLock = false;
+// absDayLock: כניסה מתפריט היום — ההיעדרות לאותו יום בלבד, והתאריך אינו ניתן לשינוי
+let absDayLock = false;
+let absStart = new Date(2026, 8, 1);
+let absEnd   = new Date(2026, 8, 1);
+let pickView = new Date(2026, 8, 1);
+let pickTarget = 'from';
+
+const colDH = document.getElementById('colDH'), colDM = document.getElementById('colDM');
+buildCol(colDH, 13, false); buildCol(colDM, 60, true);
+[colDH, colDM].forEach(c => c.addEventListener('scroll', ()=>markSel(c)));
+
+// תיקון ושליחה מחדש: אותה בקשה חוזרת להמתנה. לא נוצרת בקשה חדשה
+let absEdit = null;
+function fixAbsence(){
+  const r = curReq;
+  closeReq();
+  const parse = k => { const [m,d] = k.split('-').map(Number); return new Date(2026, m-1, d); };
+  setTimeout(()=>{
+    openAbsence(parse(r.dates[0]), false, false);
+    absEdit = r;
+    absType = ABSENCE_TYPES.find(t=>t.n === r.type) || null;
+    absEnd = parse(r.dates[r.dates.length-1]);
+    const fb = document.getElementById('absFix');
+    fb.style.display = "block";
+    fb.innerHTML = `<b>הבקשה הוחזרה לתיקון</b><span class="rsn">${r.fixReason}</span><span class="rnote">${r.fixNote || ""}</span>`;
+    document.getElementById('absTitle').textContent = "תיקון בקשת היעדרות";
+    document.getElementById('absSaveBtn').textContent = "שליחה מחדש לאישור";
+    paintAbsence();
+  }, 220);
+}
+
+function openAbsence(startDate, partialOnly, dayLock){
+  absEdit = null;
+  document.getElementById('absFix').style.display = "none";
+  document.getElementById('absSaveBtn').textContent = "שמירת ההיעדרות";
+  absType = null; absDoc = null;
+  fullDay = !partialOnly; workOnly = true;
+  partialLock = !!partialOnly;
+  absDayLock = !!dayLock;
+  absStart = startDate ? new Date(startDate) : new Date(TODAY);
+  absEnd = new Date(absStart);
+  pickView = new Date(absStart);
+  const fds = document.getElementById('fullDaySw');
+  fds.classList.toggle('on', fullDay);
+  fds.setAttribute('aria-checked', fullDay ? 'true' : 'false');
+  document.getElementById('workOnlySw').classList.add('on');
+  document.getElementById('workOnlySw').setAttribute('aria-checked','true');
+
+  document.getElementById('absNote').value = "";
+  document.getElementById('absTitle').textContent = absDayLock
+    ? `היעדרות ל־${absStart.getDate()} ב${MONTHS[absStart.getMonth()]}`
+    : "דיווח היעדרות";
+  paintAbsence();
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('absSheet').classList.add('on');
+  requestAnimationFrame(()=>{ setCol(colDH,4); setCol(colDM,0); });
+}
+function closeAbsence(){
+  ['absSheet','typeSheet','dateSheet','absDoneSheet','listSheet']
+    .forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById('scrim').classList.remove('on');
+}
+
+function fmtDate(d){ return `${d.getDate()} ב${MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
+
+// כמה ימי היעדרות בפועל בטווח
+function countDays(){
+  let total = 0, work = 0;
+  const d = new Date(absStart);
+  while(d <= absEnd){
+    total++;
+    if(WORK_DAYS.includes(d.getDay())) work++;
+    d.setDate(d.getDate()+1);
+  }
+  return {total, work};
+}
+
+// חריגה מהיתרה. נאכפת רק כשהמכסה מוגדרת בהרמוני
+function overdraft(charged){
+  const key = balanceKey(absType);
+  if(!key || charged <= 0) return null;
+  const b = BALANCES.find(x=>x.k === key);
+  if(!b || b.v === null || charged <= b.v) return null;
+  return {label: b.label, have: b.v, want: charged, over: Math.round((charged - b.v) * 10) / 10};
+}
+
+// חריגה ממינימום/מקסימום ימים לבקשה. גם היא מותנית בהגדרה
+function rangeLimit(count){
+  if(!absType || count <= 0) return null;
+  if(absType.max != null && count > absType.max)
+    return `בסוג "${absType.n}" ניתן לדווח עד ${absType.max} ${absType.max === 1 ? "יום" : "ימים"} בבקשה. בבקשה הזו ${count}.`;
+  if(absType.min != null && count < absType.min)
+    return `בסוג "${absType.n}" נדרש דיווח של ${absType.min} ימים לפחות.`;
+  return null;
+}
+
+function paintBalances(charged){
+  const key = balanceKey(absType);
+  const wrap = document.getElementById('balances');
+  wrap.innerHTML = "";
+  BALANCES.forEach(b=>{
+    const on = b.k === key;
+    const after = on && charged > 0 ? Math.round((b.v - charged) * 10) / 10 : null;
+    const el = document.createElement('div');
+    el.className = "bal" + (on ? " on" : "");
+    el.innerHTML = `<b>${b.v === null ? "—" : b.v}</b>${after !== null
+      ? `<span class="after${after < 0 ? ' neg' : ''}">← ${after}</span>` : ''}
+      <span>${b.label}</span>`;
+    wrap.appendChild(el);
+  });
+
+  const rl = rangeLimit(charged);
+  const od = overdraft(charged);
+  const msg = document.getElementById('balMsg');
+  if(rl){
+    msg.style.display = "block";
+    msg.className = "balmsg block";
+    msg.innerHTML = rl;
+    return;
+  }
+  if(!od){
+    msg.style.display = "none";
+    return;
+  }
+  const blocked = CONFIG.balanceOverdraft === "block";
+  msg.style.display = "block";
+  msg.className = "balmsg" + (blocked ? " block" : "");
+  msg.innerHTML = blocked
+    ? `אין יתרה מספקת. מבוקשים <b>${od.want}</b> ${od.label} ובמאזן <b>${od.have}</b>. צמצמו את הטווח או פנו למנהל.`
+    : `הבקשה חורגת מהיתרה ב־<b>${od.over}</b> ${od.want === 1 ? "יום" : "ימים"}. מבוקשים <b>${od.want}</b> ${od.label} ובמאזן <b>${od.have}</b> — הבקשה תישלח לאישור חריג.`;
+}
+
+function paintUpcoming(){
+  const parse = k => { const [m,d] = k.split('-').map(Number); return new Date(2026, m-1, d); };
+  const items = [];
+  pendingReqs.forEach(r=>items.push({r, status:"pending"}));
+  doneReqs.filter(r=>r.status==="approved").forEach(r=>items.push({r, status:"approved"}));
+  const future = items
+    .filter(x => parse(x.r.dates[0]) >= TODAY)
+    .sort((a,b) => parse(a.r.dates[0]) - parse(b.r.dates[0]))
+    .slice(0,3);
+
+  const wrap = document.getElementById('upcoming');
+  wrap.innerHTML = '<div class="up-head">ההיעדרויות הקרובות שלך</div>';
+  if(!future.length){
+    wrap.innerHTML += '<div class="up-empty">אין היעדרויות מתוכננות</div>';
+    return;
+  }
+  future.forEach(x=>{
+    const row = document.createElement('div');
+    row.className = "up-row";
+    row.innerHTML = `<span><b>${x.r.type}</b><span class="up-d"> · ${reqDateLabel(x.r)}</span></span>
+      <span class="up-tag ${x.status === 'approved' ? 'ok' : ''}">${x.status === 'approved' ? 'אושרה' : 'בהמתנה'}</span>`;
+    wrap.appendChild(row);
+  });
+}
+
+function paintAbsence(){
+  const v = document.getElementById('absTypeVal');
+  v.textContent = absType ? absType.n : "בחירה מהרשימה";
+  v.classList.toggle('empty', !absType);
+
+  // כניסה מתפריט היום: יום אחד, תאריך קבוע. כניסה כללית: טווח פתוח
+  const fromRow = document.getElementById('absFromRow');
+  const toRow = document.getElementById('absToRow');
+  fromRow.classList.toggle('fixed', absDayLock);
+  fromRow.disabled = absDayLock;
+  toRow.style.display = absDayLock ? "none" : "flex";
+  document.getElementById('absFromLbl').textContent = absDayLock ? "תאריך" : "מתאריך";
+  const lockNote = document.getElementById('dayLockNote');
+  lockNote.style.display = absDayLock ? "block" : "none";
+  lockNote.textContent = "ההיעדרות ליום הזה בלבד. להיעדרות של כמה ימים — הכפתור \"דיווח היעדרות\" בלוח.";
+
+  document.getElementById('absFromVal').textContent = fmtDate(absStart);
+  document.getElementById('absToVal').textContent = fmtDate(absEnd);
+
+  const {total, work} = countDays();
+  const isRange = total > 1;
+  const counted = workOnly ? work : total;
+
+  const dc = document.getElementById('dayCount');
+  dc.style.display = isRange ? "block" : "none";
+  if(isRange){
+    const base = workOnly
+      ? `${work} ימי עבודה מתוך ${total} ימים בטווח`
+      : `${total} ימים, כולל סופי שבוע`;
+    const charged = fullDay ? counted : counted / 2;
+    dc.textContent = fullDay ? base : `${base} · ${charged} ימי היעדרות`;
+  }
+
+  const fdRow = document.getElementById('fullDayRow');
+  fdRow.classList.toggle('locked', partialLock);
+  const fdLabel = document.getElementById('fullDayLabel');
+  const fdSub   = document.getElementById('fullDaySub');
+  fdLabel.textContent = isRange ? "ימים מלאים" : "יום מלא";
+  if(partialLock){
+    fdSub.textContent = "לא זמין — יש ביום דיווח נוכחות, ולכן ההיעדרות חלקית";
+  }else if(isRange){
+    fdSub.textContent = fullDay ? "כל יום נספר כיום היעדרות מלא" : "כל יום נספר כחצי יום";
+  }else{
+    fdSub.textContent = fullDay ? "ההיעדרות על כל היום" : "בחרו את משך ההיעדרות";
+  }
+
+  // ביום בודד מתפריט היום אין משמעות לספירת ימי עבודה — השורה לא מוצגת
+  const woRow = document.getElementById('workOnlyRow');
+  woRow.style.display = absDayLock ? "none" : "flex";
+  woRow.classList.toggle('locked', !isRange);
+  document.getElementById('workOnlySub').textContent = !isRange
+    ? "רלוונטי כשההיעדרות היא ליותר מיום"
+    : (workOnly ? "סופי שבוע וחגים לא נספרים" : "כל הימים בטווח נספרים");
+
+  const showDur = (!isRange && !fullDay);
+  const durBlock = document.getElementById('absDurBlock');
+  if(showDur && durBlock.style.display !== "block"){
+    durBlock.style.display = "block";
+    requestAnimationFrame(()=>{ setCol(colDH,4); setCol(colDM,0); });
+  }else if(!showDur){
+    durBlock.style.display = "none";
+  }
+
+  const docBlock = document.getElementById('absDocBlock');
+  const needDoc = !!(absType && absType.doc);
+  docBlock.style.display = needDoc ? "block" : "none";
+  if(needDoc){
+    document.getElementById('absDocLabel').innerHTML = 'צירוף אישור <span class="req">*</span>';
+    document.getElementById('absDocBtn').style.display = absDoc ? "none" : "flex";
+    const chip = document.getElementById('absDocChip');
+    chip.style.display = absDoc ? "flex" : "none";
+    if(absDoc) document.getElementById('absDocName').textContent = absDoc;
+  }
+
+  const charged = fullDay ? counted : counted / 2;
+  paintBalances(charged);
+  paintUpcoming();
+
+  // סעיף תקציבי בהיעדרות — אותם פרמטרים כמו בנוכחות
+  const showB = CONFIG.showBudgetItem;
+  document.getElementById('absBudgetRow').style.display = showB ? "flex" : "none";
+  const showS = showB && CONFIG.showSubBudgetItem;
+  const subRowA = document.getElementById('absSubRow');
+  subRowA.style.display = showS ? "flex" : "none";
+  if(showB){
+    const bv = document.getElementById('absBudgetVal');
+    bv.textContent = absBudget ? absBudget.n : "ללא";
+    bv.classList.toggle('empty', !absBudget);
+    const ready = !!(absBudget && absBudget.subs.length);
+    subRowA.disabled = !ready;
+    subRowA.classList.toggle('locked', !ready);
+    const sv = document.getElementById('absSubVal');
+    sv.textContent = !absBudget ? "בחרו קודם סעיף תקציבי"
+      : !absBudget.subs.length ? "אין תתי סעיפים לסעיף הזה"
+      : (absSub || "ללא");
+    sv.classList.toggle('empty', !absSub || !ready);
+  }
+
+  const od = overdraft(charged);
+  const blockedByBalance = od && CONFIG.balanceOverdraft === "block";
+  const blockedByRange = !!rangeLimit(charged);
+  const ok = !!absType && counted > 0 && (!needDoc || !!absDoc)
+    && !blockedByBalance && !blockedByRange;
+  document.getElementById('absSaveBtn').disabled = !ok;
+}
+
+function toggleFullDay(){
+  if(partialLock) return;
+  fullDay = !fullDay;
+  const sw = document.getElementById('fullDaySw');
+  sw.classList.toggle('on', fullDay);
+  sw.setAttribute('aria-checked', fullDay ? 'true' : 'false');
+  paintAbsence();
+}
+function toggleWorkOnly(){
+  workOnly = !workOnly;
+  const sw = document.getElementById('workOnlySw');
+  sw.classList.toggle('on', workOnly);
+  sw.setAttribute('aria-checked', workOnly ? 'true' : 'false');
+  paintAbsence();
+}
+
+/* ---- בורר תאריך חופשי — רק בכניסה הכללית ---- */
+function openDatePicker(target){
+  if(absDayLock) return;
+  pickTarget = target || 'from';
+  document.getElementById('dateSheetTitle').textContent =
+    pickTarget === 'from' ? "מתאריך" : "עד תאריך";
+  pickView = new Date(pickTarget === 'from' ? absStart : absEnd);
+  paintPicker();
+  document.getElementById('dateSheet').classList.add('on');
+}
+function navMonth(n){
+  pickView.setMonth(pickView.getMonth() + n);
+  paintPicker();
+}
+function paintPicker(){
+  document.getElementById('pickMonth').textContent =
+    MONTHS[pickView.getMonth()] + " " + pickView.getFullYear();
+  const g = document.getElementById('pickGrid');
+  g.innerHTML = "";
+  const y = pickView.getFullYear(), m = pickView.getMonth();
+  const first = new Date(y, m, 1).getDay();
+  const len = new Date(y, m+1, 0).getDate();
+  for(let i=0;i<first;i++) g.appendChild(document.createElement('span'));
+  for(let d=1; d<=len; d++){
+    const b = document.createElement('button');
+    b.className = "day";
+    b.textContent = d;
+    const dt = new Date(y, m, d);
+    if(!WORK_DAYS.includes(dt.getDay())) b.classList.add('weekend');
+    const anchor = pickTarget === 'exp' ? expDateObj : pickTarget === 'from' ? absStart : absEnd;
+    if(dt.toDateString() === anchor.toDateString()) b.classList.add('today');
+    if(pickTarget === 'exp' && dt > TODAY){ b.classList.add('out'); b.disabled = true; }
+    b.onclick = ()=>{
+      const picked = new Date(y, m, d);
+      if(pickTarget === 'exp'){
+        expDateObj = picked; paintExpDate();
+        document.getElementById('dateSheet').classList.remove('on');
+        return;
+      }
+      if(pickTarget === 'from'){
+        absStart = picked;
+        if(absEnd < absStart) absEnd = new Date(absStart);   // עד־תאריך נגרר עם ההתחלה
+      }else{
+        absEnd = picked < absStart ? new Date(absStart) : picked;
+      }
+      document.getElementById('dateSheet').classList.remove('on');
+      paintAbsence();
+    };
+    g.appendChild(b);
+  }
+}
+function attachDoc(){ absDoc = "אישור.pdf"; paintAbsence(); }
+function removeDoc(){ absDoc = null; paintAbsence(); }
+
+function openTypePicker(){
+  document.getElementById('typeSearch').value = "";
+  paintTypes("");
+  document.getElementById('typeSheet').classList.add('on');
+}
+function paintTypes(q){
+  q = (q||"").trim();
+  const body = document.getElementById('typelistBody');
+  body.innerHTML = "";
+  const match = t => !q || t.n.includes(q);
+
+  const addRow = (t) => {
+    const b = document.createElement('button');
+    b.className = "trow" + (absType && absType.n === t.n ? " on" : "");
+    b.innerHTML = `<span>${t.n}</span>` + (t.doc ? `<span class="tflag">דורש אישור</span>` : "");
+    b.onclick = ()=>{
+      absType = t;
+      recentTypes = [t.n, ...recentTypes.filter(x=>x!==t.n)].slice(0,3);
+      document.getElementById('typeSheet').classList.remove('on');
+      paintAbsence();
+    };
+    body.appendChild(b);
+  };
+
+  if(!q && recentTypes.length){
+    const h = document.createElement('div');
+    h.className = "tgroup"; h.textContent = "נבחרו לאחרונה";
+    body.appendChild(h);
+    recentTypes.forEach(n=>{
+      const t = ABSENCE_TYPES.find(x=>x.n===n);
+      if(t) addRow(t);
+    });
+  }
+  ["מחלה","חופשה","משפחה","אחר"].forEach(g=>{
+    const items = ABSENCE_TYPES.filter(t=>t.g===g && match(t));
+    if(!items.length) return;
+    const h = document.createElement('div');
+    h.className = "tgroup"; h.textContent = g;
+    body.appendChild(h);
+    items.forEach(addRow);
+  });
+  if(!body.children.length){
+    const e = document.createElement('div');
+    e.className = "tgroup"; e.textContent = "לא נמצא סוג התואם לחיפוש";
+    body.appendChild(e);
+  }
+}
+
+function saveAbsence(){
+  const key = Object.keys(days).find(k =>
+    days[k].m === absStart.getMonth()+1 && days[k].d === absStart.getDate());
+  const d = key ? days[key] : null;
+  if(d) d.extras = d.extras || [];
+
+  const c = countDays();
+  let dur;
+  if(c.total > 1){
+    const n = workOnly ? c.work : c.total;
+    dur = fullDay ? `${n} ימים` : `${n/2} ימים (חצאי ימים)`;
+  }else if(!fullDay){
+    dur = `${Math.round(colDH.scrollTop/44)}:${String(Math.round(colDM.scrollTop/44)).padStart(2,'0')} שעות`;
+  }else{
+    dur = "יום מלא";
+  }
+  if(d) d.extras.push({name: absType.n, value: dur, fullDay: (c.total > 1 || fullDay)});
+
+  // כל היעדרות שנשמרת היא בקשה שממתינה לאישור
+  const reqDates = [];
+  const dd = new Date(absStart);
+  while(dd <= absEnd){
+    if(!workOnly || absDayLock || WORK_DAYS.includes(dd.getDay()))
+      reqDates.push(`${dd.getMonth()+1}-${dd.getDate()}`);
+    dd.setDate(dd.getDate()+1);
+  }
+  if(absEdit){
+    // אותה בקשה, אותו מספר — חוזרת להמתנה, וההיסטוריה נשמרת
+    doneReqs = doneReqs.filter(x=>x !== absEdit);
+    Object.assign(absEdit, {type:absType.n, dates:reqDates, days:reqDates.length, status:"pending",
+      doc:absDoc, resentAt:"היום, 12:04"});
+    pendingReqs.push(absEdit);
+    absEdit = null;
+  }else
+  pendingReqs.push({
+    type: absType.n, dates: reqDates, days: reqDates.length, status:"pending",
+    full: fullDay, workOnly: workOnly,
+    note: document.getElementById('absNote').value.trim(),
+    doc: absDoc, sentAt: "היום, 12:04", manager: "שרון לוי"
+  });
+  applyPending();
+
+  const range = (c.total > 1)
+    ? `${absStart.getDate()} ב${MONTHS[absStart.getMonth()]} – ${absEnd.getDate()} ב${MONTHS[absEnd.getMonth()]}`
+    : `${absStart.getDate()} ב${MONTHS[absStart.getMonth()]}`;
+  document.getElementById('absDoneSub').textContent =
+    `${absType.n} · ${range} · ${dur}. נשלח לאישור המנהל.`;
+
+  // לא מנווטים לשום מקום — שואלים מה הלאה
+  document.getElementById('absSheet').classList.remove('on');
+  document.getElementById('absDoneSheet').classList.add('on');
+}
+
+function absAgain(){
+  document.getElementById('absDoneSheet').classList.remove('on');
+  setTimeout(()=>openAbsence(absStart, partialLock, absDayLock), 200);
+}
+function absHome(){
+  closeAbsence();
+  show('home');
+}
+
+// התפריט הכללי (ימין). go → מסך בפרוטוטייפ, או null אם מחוץ להיקף
+const MENU_ITEMS = [
+  {ic:"⌂",  t:"ראשי",            go:"home"},
+  {ic:"▤",  t:"נוכחות",          go:"month"},
+  {ic:"◷",  t:"סטטוסים",         go:"req", isNew:true},
+  {ic:"₪",  t:"דיווח הוצאות",     go:"exp"},
+  {ic:"⚙",  t:"אזור מנהל",        go:"mgr", mgrOnly:true},
+  {ic:"▥",  t:"דו״חות",          go:null},
+  {ic:"▤",  t:"טופס 101",        go:null},
+  {ic:"▤",  t:"הצגת טופס 106",   go:null},
+  {ic:"▤",  t:"הצגת תלוש שכר",   go:null},
+  {ic:"▤",  t:"פרטי קשר",        go:null},
+  {ic:"ⓘ",  t:"אודות",           go:null},
+  {ic:"⚙",  t:"הגדרות",          go:null}
+];
+
+
+
+function openMenu(){
+  const at = document.querySelector('.screen.on').id.replace('scr-','');
+  const list = document.getElementById('smList');
+  list.innerHTML = "";
+  // "אזור מנהל" מוצג רק למשתמש שמורשה לאשר
+  MENU_ITEMS.filter(m => !m.mgrOnly || isMgr).forEach(m=>{
+    const b = document.createElement('button');
+    b.className = "sm-row" + (m.go === at || (m.go==="mgr" && at.startsWith("mgr")) ? " on" : "") + (m.go ? "" : " dim");
+    b.innerHTML = `<span class="sm-ic">${m.ic}</span><span>${m.t}</span>` +
+      (m.isNew ? `<span class="sm-new">חדש</span>` : "");
+    b.onclick = ()=>{
+      closeSide();
+      if(m.go === "absence"){ setTimeout(openAbsenceFromHome, 220); return; }
+      if(m.go === "req"){ reqTab = "wait"; reqKind = "all"; show('req'); return; }
+      if(m.go === "exp"){ setTimeout(()=>openExpense(true), 220); return; }
+      if(m.go) show(m.go); else toast(m.t + " — מחוץ להיקף הפרויקט");
+    };
+    list.appendChild(b);
+  });
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('sideMenu').classList.add('on');
+}
+function closeSide(){
+  document.getElementById('sideMenu').classList.remove('on');
+  document.getElementById('scrim').classList.remove('on');
+}
+
+// פעולות היום מוצגות כאריחים גלויים במסך היום. אותם כללי זמינות כמו בתפריט
+function paintTiles(){
+  const d = days[cur];
+  const hasPunches = d.punches.some(p => p.in || p.out);
+  const fa = fullAbsence(d);
+  const locked = isLocked(cur);
+  const future = isFuture(d);
+  const liveDay = d.punches.some(p => p.in && !p.out && p.kind !== 'break');
+  const set = (id, blocked, ok, fn) => {
+    const t = document.getElementById(id);
+    t.classList.toggle('locked', !!blocked);
+    document.getElementById(id + 'Sub').textContent = blocked ? "לא זמין — " + blocked : ok;
+    t.onclick = blocked ? null : fn;
+  };
+  set('tPunch', locked ? "מחזור סגור" : fa ? fa.name + " על כל היום" : future ? "יום עתידי" : null,
+      "שורת דיווח נוספת ליום", openAddSheet);
+  set('tAbs', locked ? "מחזור סגור" : fa ? "כבר מדווחת היעדרות" : null,
+      hasPunches ? "חלקית — יש ביום נוכחות" : "ליום הזה",
+      ()=>openAbsence(new Date(2026, d.m-1, d.d), hasPunches, true));
+  document.getElementById('tBreak').style.display = CONFIG.breakPunches ? "flex" : "none";
+  set('tBreak', locked ? "מחזור סגור" : !hasPunches ? "אין ביום נוכחות" : null,
+      liveDay ? "יציאה להפסקה עכשיו" : "יציאה וחזרה",
+      ()=>openBreakSheet(liveDay));
+  // קודי הזמן ממסך "דיווחים אחרים" הקיים: זמן נסיעה, הפסקה ארוכה, חוסר לשכר ועוד
+  set('tOther', locked ? "מחזור סגור" : future ? "יום עתידי" : null,
+      "זמן נסיעה, הפסקה ארוכה ועוד",
+      ()=>toast(`דיווח נוסף ל־${d.name}: רשימת קודי הזמן מהגדרת הלקוח`));
+  set('tTask', locked ? "מחזור סגור" : future ? "יום עתידי" : null,
+      "שעות על משימה",
+      ()=>toast(`תנועת משימה ל־${d.name} — ההתנהגות הקיימת נשמרת`));
+}
+
+
+/* ================= הוצאה מתפריט היום =================
+   סוגי ההוצאה, הדגלים והמגבלות מגיעים מהגדרת הלקוח בהרמוני — כמו ב־expenses-flow.
+   התאריך נעול לפי היום. הטופס המלא מאופיין באפיון ההוצאות */
+const EXP_TYPES = [
+  {n:"חניה",         receipt:true,  min:5,    max:300},
+  {n:"אוכל / אירוח", receipt:true,  min:20,   max:250},
+  {n:"נסיעות / דלק", receipt:true,  min:30,   max:800},
+  {n:"לינה",         receipt:true,  min:150,  max:1200},
+  {n:"כיבוד",        receipt:false, min:null, max:120},
+  {n:"אחר",          receipt:true,  min:null, max:null}
+];
+let expType = null, expAmt = "", expRec = false, expSeq = 124, expDateObj = new Date(TODAY), expEdit = null;
+// הוצאות מאושרות על ידי חשב השכר בלבד
+const EXP_APPROVER = "רונית כהן, חשבת שכר";
+const fmtD = d => `${d.getDate()} ב${MONTHS[d.getMonth()]}`;
+// סריקת קבלה — שלב מתקדם, תלוי ביכולת זיהוי טקסט. כאן: הדגמה בלבד
+function scanReceipt(){
+  expRec = true;
+  if(!expAmt){
+    expAmt = "45.00";
+    document.getElementById('expAmt').value = expAmt;
+    document.getElementById('expScanned').style.display = "block";
+  }
+  paintExp();
+}
+// כפתור "הוצאות": התאריך הוא היום כברירת מחדל וניתן לשינוי. edit = תיקון של הוצאה שהוחזרה
+function openExpense(fromHome, edit){
+  expEdit = edit || null;
+  expType = null; expAmt = ""; expRec = false;
+  expDateObj = new Date(TODAY);
+  if(!fromHome && !edit && cur) expDateObj = new Date(2026, days[cur].m-1, days[cur].d);
+  document.getElementById('expAmt').value = "";
+  document.getElementById('expOther').value = "";
+  document.getElementById('expScanned').style.display = "none";
+  const fb = document.getElementById('expFix');
+  if(edit){
+    expType = EXP_TYPES.find(t=>t.n === edit.type) || null;
+    expAmt = String(edit.amount); document.getElementById('expAmt').value = expAmt;
+    expRec = !!edit.receipt;
+    expDateObj = new Date(2026, edit.m-1, edit.d);
+    fb.style.display = "block";
+    fb.innerHTML = `<b>ההוצאה הוחזרה לתיקון</b><span class="rsn">${edit.reason}</span><span class="rnote">${edit.note || ""}</span>`;
+  }else fb.style.display = "none";
+  document.getElementById('expTitle').textContent = edit ? `תיקון ${edit.id}` : "דיווח הוצאה";
+  document.getElementById('expSave').textContent = edit ? "שליחה מחדש לאישור" : "שליחה לאישור";
+  paintExpDate();
+  paintExp();
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('expSheet').classList.add('on');
+}
+function paintExpDate(){ document.getElementById('expDate').textContent = fmtD(expDateObj) + " 2026"; }
+function openExpDate(){
+  pickTarget = 'exp';
+  document.getElementById('dateSheetTitle').textContent = "תאריך ההוצאה";
+  pickView = new Date(expDateObj);
+  paintPicker();
+  document.getElementById('dateSheet').classList.add('on');
+}
+function onExpAmt(v){
+  expAmt = v.replace(/[^\d.]/g,"");
+  if(expAmt !== v) document.getElementById('expAmt').value = expAmt;
+  paintExp();
+}
+function paintExp(){
+  const g = document.getElementById('expTypes');
+  g.innerHTML = "";
+  EXP_TYPES.forEach(t=>{
+    const b = document.createElement('button');
+    b.className = expType === t ? "on" : "";
+    const f = [];
+    if(t.receipt) f.push("קבלה חובה");
+    if(t.max !== null) f.push("עד ₪" + t.max);
+    b.innerHTML = t.n + (f.length ? `<span class="ef">${f.join(" · ")}</span>` : "");
+    b.onclick = ()=>{ expType = t; paintExp(); };
+    g.appendChild(b);
+  });
+  const other = expType && expType.n === "אחר";
+  document.getElementById('expOtherWrap').style.display = other ? "block" : "none";
+  const otherTxt = document.getElementById('expOther').value.trim();
+  const amt = parseFloat(expAmt || "0");
+  let err = null;
+  if(expType && expAmt){
+    if(expType.min !== null && amt < expType.min) err = `הסכום המינימלי ל${expType.n} הוא ₪${expType.min}.`;
+    if(expType.max !== null && amt > expType.max) err = `הסכום המקסימלי ל${expType.n} הוא ₪${expType.max}. לסכום גבוה יותר נדרש אישור מראש מהמנהל.`;
+  }
+  document.getElementById('expAmtBox').classList.toggle('err', !!err);
+  const hint = document.getElementById('expHint');
+  hint.style.color = err ? "#9B2C2C" : "";
+  hint.textContent = err || (expType && expType.max !== null
+    ? `הסכום המותר: ${expType.min !== null ? "₪" + expType.min + " עד " : "עד "}₪${expType.max}` : "");
+  const needRec = !expType || expType.receipt;
+  document.getElementById('expRecBtn').style.display = expRec ? "none" : "flex";
+  document.getElementById('expRecChip').style.display = expRec ? "flex" : "none";
+  document.getElementById('expRecSub').textContent = needRec ? "חובה בסוג ההוצאה הזה" : "לא חובה";
+  document.getElementById('expSave').disabled =
+    !(expType && amt > 0 && !err && (!expType.receipt || expRec) && (!other || otherTxt.length >= 2));
+}
+function saveExpense(){
+  const type = expType.n === "אחר" ? `אחר · ${document.getElementById('expOther').value.trim()}` : expType.n;
+  const amount = parseFloat(expAmt);
+  const m = expDateObj.getMonth()+1, d = expDateObj.getDate(), date = fmtD(expDateObj);
+  if(expEdit){
+    // רשומה מקורית לצד רשומה מעודכנת: כל שינוי נשמר
+    const e = expEdit; e.changes = e.changes || [];
+    const log = (f,a,b)=>{ if(String(a)!==String(b)) e.changes.push({f, a, b}); };
+    log("סוג ההוצאה", e.type, type); log("סכום", "₪"+e.amount.toFixed(2), "₪"+amount.toFixed(2)); log("תאריך", e.date, date);
+    Object.assign(e, {type, amount, m, d, date, receipt: expRec ? "קבלה.jpg" : null, status:"wait", resentAt:"היום, 12:04"});
+    expEdit = null;
+    closeSheet(); refreshHome(); refreshReq();
+    toast(`${e.id} נשלח מחדש לאישור`);
+    return;
+  }
+  const rec = {id:"EXP-2026-000" + (expSeq++), type, amount, date, m, d, status:"wait",
+    sentAt:"היום, 12:04", receipt: expRec ? "קבלה.jpg" : null};
+  expenses.unshift(rec);
+  document.getElementById('expSheet').classList.remove('on');
+  document.getElementById('expDoneSub').textContent =
+    `${rec.id} · ${type} · ₪${amount.toFixed(2)} · ${date}. ממתינה לאישור של ${EXP_APPROVER.split(",")[0]}.`;
+  document.getElementById('expDoneSheet').classList.add('on');
+  refreshHome();
+}
+
+// פירוט הוצאה — סטטוס, סיבה, שינויים, ציר זמן
+let curExpRec = null;
+function openExpDetail(e){
+  curExpRec = e;
+  if(e.status === "ok") processApprovedExpense(e);
+  const st = REQ_STATUS[e.status];
+  document.getElementById('edTitle').textContent = e.type;
+  document.getElementById('edSub').textContent = e.date + " 2026";
+  const tag = document.getElementById('edStat'); tag.className = "stat " + st.cls;
+  tag.textContent = (e.status === "ok" && e.transferred) ? "הועבר לשכר" : st.t;
+  document.getElementById('edStatTxt').textContent =
+    e.status === "wait" ? `ממתינה לאישור של ${EXP_APPROVER}`
+    : e.status === "fix" ? `${EXP_APPROVER.split(",")[0]} ביקשה תיקון. אפשר לתקן ולשלוח שוב.`
+    : e.status === "ok" ? `אושרה על ידי ${EXP_APPROVER}` : `נדחתה על ידי ${EXP_APPROVER}`;
+  document.getElementById('edAmt').textContent = "₪" + e.amount.toFixed(2);
+  document.getElementById('edId').textContent = e.id;
+  document.getElementById('edRecRow').style.display = e.receipt ? "flex" : "none";
+  document.getElementById('edRec').textContent = e.receipt || "";
+  const rj = document.getElementById('edRej');
+  if(e.reason && (e.status === "fix" || e.status === "rej")){
+    rj.style.display = "block"; rj.className = "rejbox" + (e.status === "fix" ? " fix" : "");
+    rj.innerHTML = `<b>${e.status === "fix" ? "מה צריך לתקן" : "סיבת הדחייה"}</b><span class="rsn">${e.reason}</span><span class="rnote">${e.note || ""}</span>`;
+  }else rj.style.display = "none";
+  document.getElementById('edChanges').innerHTML = (e.changes && e.changes.length)
+    ? '<div class="up-head" style="margin-top:12px">שינויים בדיווח</div>' +
+      e.changes.map(c=>`<div class="chg"><span class="cf">${c.f}</span><span class="cv"><s>${c.a}</s> ← <b>${c.b}</b></span></div>`).join("")
+    : "";
+  const tl = document.getElementById('edTrack'); tl.innerHTML = "";
+  const add = (cls,t,sub)=>{ tl.innerHTML += `<div class="tl-item"><span class="tl-dot ${cls}"></span><div><b>${t}</b><span>${sub}</span></div></div>`; };
+  add("", "נשלח על ידך", e.sentAt || "");
+  if(e.resentAt){ add("", "הוחזר לתיקון", e.decidedAt || ""); add("", "נשלח מחדש", e.resentAt); }
+  if(e.status === "wait") add("wait", "ממתין לאישור", EXP_APPROVER);
+  if(e.status === "fix")  add("", "הוחזר לתיקון", e.decidedAt || "");
+  if(e.status === "ok")   add("", "אושר", e.decidedAt || "");
+  if(e.status === "ok")   add(e.transferred ? "" : "wait", e.transferred ? "הועבר לשכר" : "יועבר לשכר בממשק החודשי", e.transferredAt || "");
+  if(e.status === "rej")  add("rej", "נדחה", e.decidedAt || "");
+  document.getElementById('edFoot').style.display = (e.status === "wait" || e.status === "fix") ? "block" : "none";
+  document.getElementById('edFix').style.display = e.status === "fix" ? "block" : "none";
+  document.getElementById('edCancel').style.display = e.status === "wait" ? "block" : "none";
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('expDet').classList.add('on');
+}
+function fixExpense(){ const e = curExpRec; closeSheet(); setTimeout(()=>openExpense(false, e), 220); }
+function cancelExpense(){
+  expenses = expenses.filter(x=>x !== curExpRec);
+  closeSheet(); refreshReq(); refreshHome(); toast("הדיווח בוטל");
+}
+
+/* ================= תהליך מערכת לאחר אישור =================
+   לא מוצג לעובד:
+   1. אישור הוא הטריגר לעדכון ההוצאה בנתוני/קובץ הנוכחות הקיים, כולל קוד הסיבה לשכר.
+   2. אין קובץ קליטה נפרד לכל הוצאה.
+   3. במקביל מתעדכנים ריכוז תיעוד חודשי ותיקיית קבלות:
+      חודש / מספר עובד + שם עובד / תאריך_סכום_סוג-הוצאה.ext
+   4. payrollTransferred נשמר כאינדיקציה מערכתית למניעת העברה כפולה.
+*/
+function processApprovedExpense(e){
+  if(!e || e.status !== "ok" || e.payrollTransferred) return;
+  e.payrollTransferred = true; // מייצג עדכון לזרימת הנוכחות הקיימת לשכר
+  e.archived = true;           // מייצג עדכון קובץ התיעוד ותיקיית הקבלות החודשית
+}
+
+let breakLive = false;
+function openBreakSheet(live){
+  breakLive = !!live;
+  sheetMode = "break"; newStep = 1; newEntry = null; newTargetIdx = null;
+  document.getElementById('sheetDate').textContent = days[cur].name + " 2026";
+  paintNewStep();
+  openSheetShell();
+}
+
+function openAddSheet(){
+  sheetMode = "new"; newStep = 1; newEntry = null; newTargetIdx = null;
+  const d = days[cur];
+  document.getElementById('sheetDate').textContent = d.name + " 2026";
+  paintNewStep();
+  openSheetShell();
+}
+
+function paintNewStep(){
+  const d = days[cur];
+  const first = newStep === 1;
+  const filling = newTargetIdx !== null;
+  const brk = sheetMode === "break";
+  document.getElementById('sheetTitle').textContent = brk
+    ? (breakLive ? "יציאה להפסקה" : (first ? "מתי יצאת להפסקה?" : "מתי חזרת?"))
+    : (first ? "מתי הגעת?" : "מתי יצאת?");
+  document.getElementById('sheetSub').textContent = brk
+    ? (breakLive
+        ? `היציאה תירשם בשעה הנוכחית. שעת החזרה תדווח כשתחזרו.`
+        : first
+          ? `הוספת הפסקה ל־${d.name}. קודם שעת היציאה, אחריה שעת החזרה.`
+          : `היציאה להפסקה נקבעה ל־${newEntry}. בחרו את שעת החזרה.`)
+    : first
+      ? (filling
+          ? `ל־${d.name} אין דיווח כלל. קודם שעת הכניסה, אחריה שעת היציאה.`
+          : `הוספת דיווח חדש ל־${d.name}. קודם שעת הכניסה, אחריה שעת היציאה.`)
+      : `הכניסה נקבעה ל־${newEntry}. בחרו את שעת היציאה.`;
+  document.getElementById('reasonBlock').style.display = first ? "none" : "block";
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = brk
+    ? (breakLive ? "יציאה להפסקה עכשיו" : (first ? "המשך לשעת החזרה" : "שמירת ההפסקה"))
+    : (first ? "המשך לשעת היציאה" : "שמירת הדיווח");
+  let start;
+  if(brk){
+    const work = d.punches.filter(p=>p.in && p.out && p.kind !== 'break');
+    const a = work.length ? toMin(work[0].in) : 8*60;
+    const b = work.length ? toMin(work[work.length-1].out) : 17*60;
+    start = first ? toStr(Math.floor((a+b)/2)) : toStr(Math.min(b, toMin(newEntry) + 30));
+  }else{
+    start = first
+      ? (d.punches.find(p=>p.out)?.out || "08:00")
+      : toStr(Math.min(23*60+59, toMin(newEntry) + 8*60));
+  }
+  const [h,m] = start.split(':').map(Number);
+  curH = h; curM = m;
+  requestAnimationFrame(()=>{ setCol(colH,curH); setCol(colM,curM); syncAll(); });
+}
+
+function paintMore(){
+  const d = days[cur];
+
+  // בהפסקה סוג הדיווח ידוע מראש — אין מה לבחור
+  if(sheetMode === "break"){
+    document.getElementById('punchTypeField').style.display = "none";
+    punchType = newStep === 1 ? "יציאה להפסקה" : "חזרה מהפסקה";
+    const showB = CONFIG.showBudgetItem;
+    document.getElementById('budgetField').style.display = showB ? "flex" : "none";
+    document.getElementById('subBudgetField').style.display =
+      (showB && CONFIG.showSubBudgetItem) ? "flex" : "none";
+    return;
+  }
+  document.getElementById('punchTypeField').style.display = "block";
+  // בהוספת דיווח: שלב 1 כניסה, שלב 2 יציאה. בהשלמה: לפי הצד החסר
+  const isEntry = (sheetMode === "new") ? (newStep === 1) : (d.missing === 'entry');
+  const list = (isEntry ? PUNCH_TYPES_IN : PUNCH_TYPES_OUT)
+    .filter(t => CONFIG.breakPunches || !t.brk);
+  document.getElementById('punchTypeLabel').innerHTML =
+    (isEntry ? "סוג הכניסה" : "סוג היציאה") + ' <span class="req">*</span>';
+
+  const tl = document.getElementById('typeList');
+  tl.innerHTML = "";
+  list.slice(0,4).forEach(t=>{
+    const b = document.createElement('button');
+    b.textContent = t.n;
+    b.className = (t.n === punchType) ? "on" : "";
+    b.onclick = ()=>{ punchType = t.n; paintMore(); validate(); };
+    tl.appendChild(b);
+  });
+  const showBudget = CONFIG.showBudgetItem;
+  const showSub = showBudget && CONFIG.showSubBudgetItem;
+  document.getElementById('budgetField').style.display = showBudget ? "flex" : "none";
+
+  const subRow = document.getElementById('subBudgetField');
+  subRow.style.display = showSub ? "flex" : "none";
+
+  const bv = document.getElementById('budgetVal');
+  bv.textContent = budgetItem ? budgetItem.n : "ללא";
+  bv.classList.toggle('empty', !budgetItem);
+
+  // התת סעיף תמיד מוצג, אבל נפתח לבחירה רק אחרי שנבחר סעיף שיש לו תתי סעיפים
+  const subReady = !!(budgetItem && budgetItem.subs.length);
+  subRow.disabled = !subReady;
+  subRow.classList.toggle('locked', !subReady);
+  const sv = document.getElementById('subBudgetVal');
+  if(!budgetItem){
+    sv.textContent = "בחרו קודם סעיף תקציבי";
+  }else if(!budgetItem.subs.length){
+    sv.textContent = "אין תתי סעיפים לסעיף הזה";
+  }else{
+    sv.textContent = subBudget || "ללא";
+  }
+  sv.classList.toggle('empty', !subBudget || !subReady);
+}
+
+/* ---- בוחר סעיף תקציבי — לא חובה ---- */
+function openListPicker(target){
+  listTarget = target;
+  const isAbs = target.startsWith('abs');
+  const isBudget = (target === 'budget' || target === 'absBudget');
+  document.getElementById('listSheetTitle').textContent = isBudget ? "סעיף תקציבי" : "תת סעיף";
+  const body = document.getElementById('listSheetBody');
+  body.innerHTML = "";
+
+  const addRow = (label, onPick, selected) => {
+    const b = document.createElement('button');
+    b.className = "trow" + (selected ? " on" : "");
+    b.innerHTML = `<span>${label}</span>`;
+    b.onclick = ()=>{
+      onPick();
+      document.getElementById('listSheet').classList.remove('on');
+      if(isAbs) paintAbsence(); else paintMore();
+    };
+    body.appendChild(b);
+  };
+
+  const parent = isAbs ? absBudget : budgetItem;
+  const child  = isAbs ? absSub : subBudget;
+
+  addRow("ללא", ()=>{
+    if(isBudget){
+      if(isAbs){ absBudget = null; absSub = null; } else { budgetItem = null; subBudget = null; }
+    }else{
+      if(isAbs) absSub = null; else subBudget = null;
+    }
+  }, isBudget ? !parent : !child);
+
+  if(isBudget){
+    BUDGET_ITEMS.forEach(it => addRow(it.n, ()=>{
+      if(parent !== it){ if(isAbs) absSub = null; else subBudget = null; }  // החלפת סעיף מאפסת את התת סעיף
+      if(isAbs) absBudget = it; else budgetItem = it;
+    }, parent === it));
+  }else if(parent){
+    parent.subs.forEach(sb => addRow(sb, ()=>{ if(isAbs) absSub = sb; else subBudget = sb; }, child === sb));
+  }
+
+  document.getElementById('listSheet').classList.add('on');
+}
+
+function openSheetShell(){
+  if(typedMode) toggleMode();
+  const box = document.getElementById('reasonBox');
+  document.getElementById('reasonLabel').innerHTML = 'סיבת ההוספה <span class="req">*</span>';
+  box.placeholder = "למשל: יצאתי לפגישה בחוץ וחזרתי";
+  box.classList.remove('err');
+  reasonText = ""; box.value = "";
+  punchType = null;
+  budgetItem = null; subBudget = null;
+  paintMore();
+  validate();
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('sheet').classList.add('on');
+}
+
+function goNext(){
+  const open = Object.keys(days).filter(isOpen);
+  justSaved = false;
+  if(open.length) openDay(open[0]); else show('list');
+}
+
+/* ---------------- day screen ---------------- */
+function toMin(t){const [h,m]=t.split(':').map(Number);return h*60+m}
+function toStr(m){m=Math.max(0,m);return String(Math.floor(m/60)).padStart(2,'0')+":"+String(m%60).padStart(2,'0')}
+
+function dayTotal(key){
+  let sum = 0;
+  days[key].punches.forEach(p=>{
+    if(p.in && p.out){
+      let diff = toMin(p.out)-toMin(p.in);
+      if(diff < 0) diff += 24*60;
+      sum += (p.kind === 'break') ? -diff : diff;
+    }
+  });
+  return sum;
+}
+
+let justSaved = false;
+
+// היעדרות מלאה חוסמת דיווח נוכחות באותו יום, ולהפך
+function fullAbsence(d){ return (d.extras || []).find(x => x.fullDay); }
+
+// יום עם היעדרות מלאה אינו "חסר דיווח" — ההיעדרות היא הדיווח
+function isOpen(k){
+  const d = days[k];
+  return !d.stub && !d.fixed && !fullAbsence(d) && !d.prevCycle;
+}
+// יום ממחזור שנסגר — לצפייה בלבד
+function isLocked(k){ return !!days[k].prevCycle; }
+
+function openDay(key){
+  cur = key;
+  const d = days[key];
+  document.getElementById('barTitle').textContent = d.name;
+  document.getElementById('dayName').textContent = d.name;
+  document.getElementById('dayDow').textContent = d.dow;
+  const faHdr = fullAbsence(d);
+  document.getElementById('dayTotal').textContent = faHdr ? "—" : toStr(dayTotal(key));
+  document.getElementById('barSub').textContent = isLocked(key) ? "מחזור סגור · לצפייה בלבד"
+    : faHdr ? faHdr.name : hasFix(d) ? "הוחזר לתיקון" : (d.fixed ? "הושלם" : "ממתין להשלמה");
+
+  document.getElementById('punchTitle').textContent = `עדכונים (${d.punches.filter(p=>p.in||p.out).length})`;
+
+  document.getElementById('addWrap').style.display = isLocked(key) ? "none" : "block";
+  paintTiles();
+
+  const ex = d.extras || [];
+  // הוצאות של אותו יום מוצגות באותו מקטע, עם סכום וסטטוס. אינן נספרות בשעות היום
+  const dayExp = expenses.filter(x=>x.m===d.m && x.d===d.d);
+  const exWrap = document.getElementById('extraWrap');
+  const exCount = ex.length + dayExp.length;
+  exWrap.style.display = exCount ? "block" : "none";
+  if(exCount){
+    document.getElementById('extraTitle').textContent = `דיווחים נוספים (${exCount})`;
+    const el = document.getElementById('extraList');
+    el.innerHTML = "";
+    ex.forEach(x=>{
+      const row = document.createElement('div');
+      row.className = "extra";
+      row.innerHTML = `<b>${x.name}</b><span>${x.value}</span>`;
+      el.appendChild(row);
+    });
+    dayExp.forEach(x=>{
+      const st = REQ_STATUS[x.status];
+      const row = document.createElement('button');
+      row.className = "extra exprow";
+      row.style.fontFamily = "var(--font)";
+      row.innerHTML = `<span class="ex-t"><b>הוצאה · ${x.type}</b><span>${x.id}</span></span>
+        <span class="ex-a">₪${x.amount.toFixed(2)}</span><span class="stat ${st.cls}">${st.t}</span>`;
+      row.onclick = ()=>openExpDetail(x);
+      el.appendChild(row);
+    });
+  }
+
+  // הכפתור מוזרק מחוץ לרשימה, ולכן צריך לנקות אותו לפני כל רינדור
+  document.querySelectorAll('#scr-day .fixnow').forEach(el=>el.remove());
+
+  const list = document.getElementById('punchList');
+  list.innerHTML = "";
+  const faNow = fullAbsence(d);
+  const emptyOnly = d.punches.every(p => !p.in && !p.out);
+  document.getElementById('punchTitle').style.display =
+    (faNow && emptyOnly) || !d.punches.length ? "none" : "block";
+  const punches = (faNow && emptyOnly) ? [] : d.punches;
+  punches.forEach((p,idx)=>{
+    const card = document.createElement('div');
+    const need = (!p.in || !p.out);
+    const brk = p.kind === 'break';
+    card.className = "punch" + (need ? " need" : "") + (brk ? " brk" : "");
+    const l1 = brk ? "יציאה להפסקה" : "כניסה";
+    const l2 = brk ? "חזרה" : "יציאה";
+    const dur = (brk && p.in && p.out) ? toStr(toMin(p.out) - toMin(p.in)) : null;
+    card.innerHTML = `
+      <div class="times">
+        <div class="tslot ${p.in?'':'empty'}"><b>${p.in ?? '+ השלמה'}</b><span>${l1}</span></div>
+        <span class="arrow">←</span>
+        <div class="tslot ${p.out?'':'empty'}"><b>${p.out ?? (p.status==='fix' ? '+ תיקון' : '+ השלמה')}</b><span>${p.status==='fix' && !p.out ? 'היה ' + p.prevOut : l2}</span></div>
+      </div>
+      ${need ? ''
+        : `<div class="meta">${brk ? `הפסקה · ${dur}` : p.task}</div>`}`;
+    if(need && !fullAbsence(d) && !isLocked(key)){ card.onclick = ()=>openSheet(key, idx); card.style.cursor="pointer"; }
+    else if(need){ card.classList.add('locked'); }
+    list.appendChild(card);
+  });
+
+  const fa = fullAbsence(d);
+  const locked = isLocked(key);
+  const blockStrip = document.getElementById('blockStrip');
+  blockStrip.classList.remove('fixs');
+  if(locked){
+    blockStrip.style.display = "flex";
+    document.getElementById('blockTxt').textContent =
+      "המחזור שאליו שייך היום הזה נסגר לשכר. לא ניתן להשלים אותו מהאפליקציה — פנו לחשב השכר.";
+  }else if(hasFix(d)){
+    const fp = d.punches.find(p=>p.status==="fix");
+    blockStrip.style.display = "flex";
+    blockStrip.classList.add('fixs');
+    document.getElementById('blockTxt').innerHTML =
+      `<b>הוחזר לתיקון: ${fp.fixReason}</b><br>${fp.fixNote} עדכנו את שעת היציאה ושלחו מחדש — הבקשה תחזור להמתנה.`;
+  }else if(fa){
+    blockStrip.style.display = "flex";
+    document.getElementById('blockTxt').textContent =
+      `היום מסומן כהיעדרות מלאה — ${fa.name}. לא ניתן לדווח נוכחות באותו יום.`;
+  }else{
+    blockStrip.style.display = "none";
+  }
+
+  // פעולה אחת לחוסר: המשבצת החסרה עצמה היא הכפתור. אין כפתור נפרד מתחת לכרטיס
+
+  const strip = document.getElementById('confirmStrip');
+  if(justSaved){
+    const gap = dayTotal(key) - STD;
+    strip.style.display = "flex";
+    document.getElementById('confirmTxt').textContent =
+      "הדיווח נשמר ונשלח לאישור המנהל. סה״כ היום " + toStr(dayTotal(key)) +
+      (gap === 0 ? " — בדיוק התקן" : gap > 0 ? " — " + toStr(gap) + " מעל התקן" : " — חסרות " + toStr(-gap));
+  }else{
+    strip.style.display = "none";
+  }
+  justSaved = false;
+
+  const open = Object.keys(days).filter(isOpen);
+  const nd = document.getElementById('nextDay');
+  if(d.fixed && !d.stub && !hasFix(d) && open.length){
+    const nx = days[open[0]];
+    nd.style.display = "block";
+    document.getElementById('nextDayTitle').textContent =
+      open.length === 1 ? "נשאר יום אחד להשלמה" : `נשארו ${open.length} ימים להשלמה`;
+    document.getElementById('nextDaySub').textContent =
+      nx.name + (nx.missing === 'both' ? " — אין דיווח כלל"
+        : nx.missing === 'exit' ? " — חסרה יציאה" : " — חסרה כניסה");
+  }else{
+    nd.style.display = "none";
+  }
+
+  show('day');
+}
+
+/* ---------------- wheel ---------------- */
+function buildCol(el, n, pad2){
+  el.innerHTML = '<div class="pad"></div>';
+  for(let i=0;i<n;i++){
+    const it = document.createElement('div');
+    it.className = "it";
+    it.textContent = pad2 ? String(i).padStart(2,'0') : i;
+    el.appendChild(it);
+  }
+  const p = document.createElement('div');
+  p.className = "pad";
+  el.appendChild(p);
+}
+const colH = document.getElementById('colH'), colM = document.getElementById('colM');
+buildCol(colH,24,true); buildCol(colM,60,true);
+
+function setCol(el, idx){ el.scrollTop = idx*44; markSel(el); }
+function markSel(el){
+  const idx = Math.round(el.scrollTop/44);
+  [...el.querySelectorAll('.it')].forEach((it,i)=>it.classList.toggle('sel', i===idx));
+  return idx;
+}
+let tH, tM;
+colH.addEventListener('scroll', ()=>{
+  const i = markSel(colH);
+  clearTimeout(tH); tH = setTimeout(()=>{ curH = i; syncAll(); }, 90);
+});
+colM.addEventListener('scroll', ()=>{
+  const i = markSel(colM);
+  clearTimeout(tM); tM = setTimeout(()=>{ curM = i; syncAll(); }, 90);
+});
+
+function toggleMode(){
+  typedMode = !typedMode;
+  document.getElementById('wheel').classList.toggle('off', typedMode);
+  document.getElementById('typed').classList.toggle('on', typedMode);
+  document.getElementById('modeBtn').textContent = typedMode ? "בחירה מגלגלת" : "הקלדה ידנית";
+  if(typedMode){
+    document.getElementById('inH').value = String(curH).padStart(2,'0');
+    document.getElementById('inM').value = String(curM).padStart(2,'0');
+  }else{
+    setCol(colH,curH); setCol(colM,curM);
+  }
+}
+['inH','inM'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', e=>{
+    const v = parseInt(e.target.value||'0',10);
+    if(id==='inH') curH = Math.min(23, isNaN(v)?0:v);
+    else curM = Math.min(59, isNaN(v)?0:v);
+    syncAll();
+  });
+});
+
+/* ---------------- sheet ---------------- */
+let curIdx = 0;
+function openSheet(key, idx){
+  cur = key; curIdx = idx; sheetMode = "complete";
+  if(days[key].missing === 'both'){
+    sheetMode = "new"; newStep = 1; newEntry = null; newTargetIdx = idx;
+    document.getElementById('sheetDate').textContent = days[key].name + " 2026";
+    paintNewStep();
+    openSheetShell();
+    return;
+  }
+  const d = days[key];
+  const p = d.punches[idx];
+  const isExit = d.missing === 'exit';
+
+  document.getElementById('sheetTitle').textContent =
+    (isExit ? "מתי סיימת" : "מתי הגעת") + " ב־" + d.name + "?";
+
+  document.getElementById('sheetSub').textContent = isExit
+    ? `נכנסת ב־${p.in} ולא נרשמה יציאה. השלימו את השעה כדי לסגור את היום.`
+    : `נרשמה יציאה ב־${p.out} בלי כניסה. השלימו את השעה כדי לסגור את היום.`;
+  document.getElementById('sheetDate').textContent = d.name + " 2026";
+  document.getElementById('saveBtn').textContent = isExit ? "שמירת היציאה" : "שמירת הכניסה";
+
+  // נקודת פתיחה שעה אחרי/לפני ההחתמה הקיימת, כדי לא להיפתח על ערך פסול
+  const base = toMin(isExit ? p.in : p.out);
+  const startMin = isExit ? Math.min(23*60+59, base + 60) : Math.max(0, base - 60);
+  curH = Math.floor(startMin/60); curM = startMin%60;
+  const box = document.getElementById('reasonBox');
+  document.getElementById('reasonLabel').innerHTML = 'סיבת ההשלמה <span class="req">*</span>';
+  box.placeholder = "למשל: שכחתי להחתים ביציאה";
+  document.getElementById('reasonBlock').style.display = "block";
+  box.classList.remove('err');
+  reasonText = "";
+  box.value = "";
+  punchType = null;
+  budgetItem = null; subBudget = null;
+  paintMore();
+  validate();
+
+  if(typedMode) toggleMode();
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('sheet').classList.add('on');
+  requestAnimationFrame(()=>{ setCol(colH,curH); setCol(colM,curM); syncAll(); });
+}
+function onReason(v){
+  reasonText = v.trim();
+  document.getElementById('reasonBox').classList.remove('err');
+  validate();
+}
+function validate(){
+  const btn = document.getElementById('saveBtn');
+  if(currentIssue()){ btn.disabled = true; return; }
+  if(!punchType){ btn.disabled = true; return; }        // סוג הדיווח חובה
+  if((sheetMode === "new" || sheetMode === "break") && newStep === 1){ btn.disabled = false; return; }
+  btn.disabled = reasonText.length < 2;
+}
+
+function closeSheet(){
+  ['sideMenu','scrim','sheet','listSheet','absSheet','absDoneSheet',
+   'reqSheet','projSheet','typeSheet','dateSheet','expSheet','decSheet','expDoneSheet','expDet','subSheet']
+    .forEach(id => document.getElementById(id).classList.remove('on'));
+}
+// כניסה כללית — מדף הבית או מ"היעדרות עתידית" בתפריט הצד: תאריכים פתוחים
+function openAbsenceFromHome(){ openAbsence(null, false, false); }
+
+function closedSegments(d, ignoreIdx){
+  return d.punches
+    .map((p,i)=>({p,i}))
+    .filter(x => x.i !== ignoreIdx && x.p.in && x.p.out)
+    .map(x => ({a: toMin(x.p.in), b: toMin(x.p.out), label: x.p.in + "–" + x.p.out}));
+}
+// חפיפה = חיתוך ממשי. גבול משותף (יציאה בדיוק בשעת הכניסה הבאה) מותר.
+function findOverlap(a, b, d, ignoreIdx){
+  return closedSegments(d, ignoreIdx).find(s => a < s.b && b > s.a) || null;
+}
+function findContaining(t, d, ignoreIdx){
+  return closedSegments(d, ignoreIdx).find(s => t > s.a && t < s.b) || null;
+}
+
+// מחזירה הודעת שגיאה, או null אם הערך תקין
+function currentIssue(){
+  const d = days[cur];
+  const v = curH*60 + curM;
+  const vs = toStr(v);
+
+  if(sheetMode === "break"){
+    if(breakLive) return null;   // בזמן אמת השעה מגיעה מהשעון
+    const work = d.punches.filter(p=>p.in && p.out && p.kind !== 'break');
+    const inside = work.some(p => v >= toMin(p.in) && v <= toMin(p.out));
+    if(newStep === 1)
+      return inside ? null : "ההפסקה חייבת להיות בתוך שעות העבודה של היום";
+    const a = toMin(newEntry);
+    if(v <= a) return "שעת החזרה חייבת להיות אחרי היציאה להפסקה";
+    if(!inside) return "החזרה מההפסקה חייבת להיות בתוך שעות העבודה של היום";
+    const clash = d.punches.some(p => p.kind === 'break' && p.in && p.out
+      && a < toMin(p.out) && v > toMin(p.in));
+    return clash ? "ההפסקה חופפת להפסקה אחרת ביום" : null;
+  }
+
+  if(sheetMode === "new"){
+    if(newStep === 1){
+      const c = findContaining(v, d, -1);
+      return c ? `השעה ${vs} נמצאת בתוך הדיווח ${c.label}` : null;
+    }
+    const a = toMin(newEntry);
+    if(v === a) return "היציאה זהה לשעת הכניסה";
+    if(v < a) return findOverlap(a, 24*60, d, -1)
+      ? `הדיווח חופף לדיווח ${findOverlap(a, 24*60, d, -1).label}` : null;  // חוצה חצות
+    const o = findOverlap(a, v, d, -1);
+    return o ? `הדיווח ${newEntry}–${vs} חופף לדיווח ${o.label}` : null;
+  }
+
+  const p = d.punches[curIdx];
+  let a, b;
+  if(d.missing === 'exit'){
+    a = toMin(p.in); b = v;
+    if(b === a) return "היציאה זהה לשעת הכניסה";
+    if(b < a) b = 24*60;                 // חוצה חצות — נבדק עד סוף היום
+  }else{
+    a = v; b = toMin(p.out);
+    if(b === a) return "הכניסה זהה לשעת היציאה";
+    // כניסה מאוחרת מהיציאה = המשמרת התחילה אתמול.
+    // מותר. החלק שנופל על היום הזה הוא מחצות עד שעת היציאה, וזה מה שנבדק לחפיפה.
+    if(b < a){ a = 0; }
+  }
+  const o = findOverlap(a, b, d, curIdx);
+  return o ? `השעה חופפת לדיווח ${o.label}` : null;
+}
+
+// האם הערך הנוכחי גולש ליום הבא
+function crossesMidnight(){
+  const v = curH*60 + curM;
+  const d = days[cur];
+  if(sheetMode === "break") return false;
+  if(sheetMode === "new") return newStep === 2 && newEntry && v < toMin(newEntry);
+  const p = d.punches[curIdx];
+  if(d.missing === 'exit') return v < toMin(p.in);
+  return v > toMin(p.out);
+}
+
+function previewTotal(){
+  const d = days[cur];
+  const v = String(curH).padStart(2,'0')+":"+String(curM).padStart(2,'0');
+  if(sheetMode === "break"){
+    let sum = dayTotal(cur);
+    if(newStep === 2 && newEntry) sum -= Math.max(0, (curH*60+curM) - toMin(newEntry));
+    return sum;
+  }
+
+  if(sheetMode === "new"){
+    let sum = 0;
+    d.punches.forEach(q=>{ if(q.in && q.out) sum += toMin(q.out)-toMin(q.in); });
+    if(newStep === 2 && newEntry){
+      let diff = toMin(v) - toMin(newEntry);
+      if(diff <= 0) diff += 24*60;
+      sum += diff;
+    }
+    return sum;
+  }
+  let sum = 0;
+  d.punches.forEach((q,i)=>{
+    let a = q.in, b = q.out;
+    if(i===curIdx){
+      if(d.missing==='exit') b = v;
+      else a = v;
+    }
+    if(a && b){
+      let diff = toMin(b)-toMin(a);
+      if(diff < 0) diff += 24*60;
+      sum += diff;
+    }
+  });
+  return sum;
+}
+function syncAll(){
+  const issue = currentIssue();
+  const vm = document.getElementById('vmsg');
+  const imp = document.querySelector('.impact');
+  if(issue){
+    vm.style.display = "block";
+    vm.textContent = issue;
+    imp.style.display = "none";
+  }else{
+    vm.style.display = "none";
+    imp.style.display = "flex";
+  }
+  validate();
+
+  const cn = document.getElementById('crossNote');
+  if(!issue && crossesMidnight()){
+    const d = days[cur];
+    const t = `${String(curH).padStart(2,'0')}:${String(curM).padStart(2,'0')}`;
+    const base = new Date(2026, d.m - 1, d.d);
+    // חסרה כניסה ⇒ הכניסה ביום הקודם. חסרה יציאה ⇒ היציאה ביום הבא.
+    const entrySide = (sheetMode === "complete" && d.missing === 'entry');
+    const shifted = new Date(base);
+    shifted.setDate(shifted.getDate() + (entrySide ? -1 : 1));
+    const label = `${shifted.getDate()} ב${MONTHS[shifted.getMonth()]}`;
+    cn.style.display = "block";
+    cn.textContent = entrySide
+      ? `הכניסה תירשם ב־${label}, ${t} — משמרת שהתחילה ביום הקודם`
+      : `היציאה תירשם ב־${label}, ${t} — משמרת שחוצה חצות`;
+  }else{
+    cn.style.display = "none";
+  }
+
+  const total = previewTotal();
+  const el = document.getElementById('impactVal');
+  const gap = total - STD;
+  el.textContent = toStr(total) + (gap===0 ? " · בדיוק התקן" : gap>0 ? ` · ${toStr(gap)} מעל התקן` : ` · חסרות ${toStr(-gap)}`);
+  el.classList.toggle('warn', total <= 0);
+}
+
+function save(){
+  if(currentIssue()) return;
+  const d = days[cur];
+  const v = String(curH).padStart(2,'0')+":"+String(curM).padStart(2,'0');
+
+  if(sheetMode === "break"){
+    if(breakLive){
+      d.punches.push({in:v, out:null, kind:'break', task:"הפסקה",
+                      reason:reasonText || "יציאה להפסקה", status:"wait"});
+      d.punches.sort((a,b)=>toMin(a.in||a.out) - toMin(b.in||b.out));
+      sheetMode = "complete"; breakLive = false;
+      justSaved = false; closeSheet(); openDay(cur);
+      toast("יצאת להפסקה. החזרה תדווח כשתחזרו");
+      return;
+    }
+    if(newStep === 1){
+      newEntry = v; newStep = 2;
+      punchType = "יציאה להפסקה";
+      paintNewStep(); paintMore(); validate();
+      return;
+    }
+    d.punches.push({in:newEntry, out:v, kind:'break', task:"הפסקה", reason:reasonText, status:"wait"});
+    d.punches.sort((a,b)=>toMin(a.in||a.out) - toMin(b.in||b.out));
+    sheetMode = "complete";
+    justSaved = false;
+    closeSheet();
+    openDay(cur);
+    toast("ההפסקה נוספה");
+    return;
+  }
+
+  if(sheetMode === "new"){
+    if(newStep === 1){
+      newEntry = v; newStep = 2;
+      punchType = null;              // סוג היציאה נבחר בנפרד
+      paintNewStep(); paintMore(); validate();
+      return;
+    }
+    if(newTargetIdx !== null){
+      d.punches[newTargetIdx].in = newEntry;
+      d.punches[newTargetIdx].out = v;
+      d.punches[newTargetIdx].reason = reasonText;
+      d.punches[newTargetIdx].status = "wait";
+      d.fixed = true;
+      newTargetIdx = null;
+      sheetMode = "complete";
+      justSaved = true;
+      closeSheet();
+      openDay(cur);
+      return;
+    }
+    d.punches.push({in:newEntry, out:v, task:"פיתוח מודול משאבי אנוש", reason:reasonText, status:"wait"});
+    d.punches.sort((a,b)=>toMin(a.in||a.out) - toMin(b.in||b.out));
+    sheetMode = "complete";
+    justSaved = false;
+    closeSheet();
+    openDay(cur);
+    toast("הדיווח נוסף");
+    return;
+  }
+
+  const wasFix = d.punches[curIdx].status === "fix";
+  if(d.missing==='exit') d.punches[curIdx].out = v; else d.punches[curIdx].in = v;
+  if(wasFix){ d.punches[curIdx].resent = true; delete d.punches[curIdx].fixReason; }
+  d.punches[curIdx].reason = reasonText;
+  d.punches[curIdx].status = "wait";
+  d.reason = reasonText;
+  d.fixed = true;
+  justSaved = true;
+  closeSheet();
+  openDay(cur);
+}
+
+
+/* ================= אזור מנהל =================
+   המאשר הוא ישות אחת. הבקשות מגיעות ממסך "עדכונים" בהרמוני, באותו מבנה שהעובד רואה ב"סטטוסים".
+   החלטה: אישור · החזרה לתיקון · דחייה. החזרה ודחייה מחייבות סיבה מהטבלה המנוהלת */
+let isMgr = false;
+function setRole(m){
+  isMgr = m;
+  document.getElementById('roleEmp').classList.toggle('on', !m);
+  document.getElementById('roleMgr').classList.toggle('on', m);
+  document.getElementById('tabMgr').style.display = m ? "flex" : "none";
+  closeSheet(); show('home');
+}
+const DEC_REASONS = [
+  {code:"R-01", kind:"fix", text:"חסר מסמך או קבלה",            note:false},
+  {code:"R-02", kind:"fix", text:"הפרטים אינם תואמים למסמך",     note:true},
+  {code:"R-03", kind:"fix", text:"סוג הדיווח אינו מתאים",        note:false},
+  {code:"R-04", kind:"fix", text:"השעה אינה סבירה — נא לבדוק",   note:true},
+  {code:"D-01", kind:"rej", text:"לא אושר מראש",                 note:true},
+  {code:"D-02", kind:"rej", text:"חריגה מהיתרה או מהתקרה",       note:false},
+  {code:"D-03", kind:"rej", text:"התאריך אינו מתאים לצרכי הצוות", note:true},
+  {code:"D-04", kind:"rej", text:"דיווח כפול",                   note:false}
+];
+// נתוני הדגמה — שמות בדויים
+let MGR = [
+  {id:"R1", emp:"דנה לוי",    eid:"5701", kind:"absence",    when:"6–8 באוקטובר", what:"חופשה · 3 ימי עבודה", ord:6,
+   note:"נסיעה משפחתית", impact:"יתרת חופשה 12.5 ← 9.5", warn:false, att:null, status:"wait",
+   team:"באותם ימים לא נעדר אף אחד מהצוות", teamWarn:false},
+  {id:"R2", emp:"דנה לוי",    eid:"5701", kind:"attendance", when:"30 בספטמבר", what:"השלמת יציאה · 17:40",
+   note:"שכחתי להחתים ביציאה", impact:"סה״כ היום 9:02 — 1:50 מעל התקן", warn:false, att:null, status:"wait", ord:0},
+  {id:"R4", emp:"אורי כץ",    eid:"7365", kind:"absence",    when:"1 באוקטובר", what:"מחלה · יום אחד",
+   note:"", impact:"יתרת מחלה 8 ← 7", warn:false, att:"אישור מחלה.pdf", status:"wait", ord:1,
+   team:"באותו יום נעדרת גם נועה ברק — 1 מתוך 6 בצוות", teamWarn:false},
+  {id:"R5", emp:"נועה ברק",   eid:"9457", kind:"attendance", when:"2 באוקטובר", what:"כניסה ויציאה · 08:10 ← 16:55",
+   note:"עבדתי מהבית ולא היה חיבור", impact:"סה״כ היום 8:45", warn:false, att:null, status:"wait", ord:2},
+  {id:"R7", emp:"יוסי אברהם", eid:"9741", kind:"absence",    when:"12–16 באוקטובר", what:"חופשה · 5 ימי עבודה",
+   note:"", impact:"יתרת חופשה 3 ← ‎-2 — חריגה מהיתרה", warn:true, att:null, status:"wait", ord:12,
+   team:"באותם ימים נעדרים 2 מתוך 6 בצוות — דנה לוי, אורי כץ", teamWarn:true},
+  // בקשה שהוחזרה לתיקון ונשלחה מחדש — מסומנת, עם מה שהשתנה
+  {id:"R8", emp:"נועה ברק",   eid:"9457", kind:"absence",    when:"20 באוקטובר", what:"מחלה · יום אחד", ord:20,
+   note:"צירפתי אישור", impact:"יתרת מחלה 8 ← 7", warn:false, att:"אישור מחלה.pdf", status:"wait",
+   resent:true, changes:"נוסף מסמך: אישור מחלה.pdf", team:"באותו יום לא נעדר אף אחד מהצוות", teamWarn:false},
+  // טופל לאחרונה
+  {id:"R9", emp:"אורי כץ",    eid:"7365", kind:"attendance", when:"24 בספטמבר", what:"השלמת כניסה · 08:15", ord:-6,
+   note:"", impact:"סה״כ היום 8:40", warn:false, att:null, status:"ok", decidedAt:"25 בספטמבר, 09:02"},
+  {id:"R10", emp:"דנה לוי",   eid:"5701", kind:"absence",    when:"22 בספטמבר", what:"חופשה · יום אחד", ord:-8,
+   note:"", impact:"יתרת חופשה 13.5 ← 12.5", warn:false, att:null, status:"rej", decidedAt:"20 בספטמבר, 14:30",
+   reasonText:"התאריך אינו מתאים לצרכי הצוות"}
+];
+const KIND_LBL = {attendance:"תיקון נוכחות", absence:"היעדרות", expense:"הוצאה"};
+const KIND_IC  = {attendance:"⏱", absence:"☼", expense:"₪"};
+let mgrKind = "all", mgrEmp = null, mgrOnly = null, mgrView = "urgent", picked = new Set(), dec = null;
+
+const pending = () => MGR.filter(r=>r.status==="wait");
+function renderMgr(){
+  const p = pending();
+  document.getElementById('mgrBig').textContent = p.length;
+  const emps = new Set(p.map(r=>r.eid)).size;
+  const flagged = p.filter(r=>r.warn).length;
+  document.getElementById('mgrSub').textContent = p.length
+    ? `מ־${emps} עובדים${flagged ? ` · ${flagged} עם חריגה` : ""}` : "אין בקשות שממתינות לך";
+  const ch = document.getElementById('mgrChips');
+  ch.innerHTML = "";
+  ["attendance","absence"].forEach(k=>{
+    const n = p.filter(r=>r.kind===k).length;
+    if(n) ch.innerHTML += `<span class="mchip">${KIND_LBL[k]} · ${n}</span>`;
+  });
+  if(flagged) ch.innerHTML += `<span class="mchip warn">חריגות · ${flagged}</span>`;
+}
+// תצוגה ראשית: כל הבקשות ברשימה אחת, לפי תאריך — הוותיקה והקרובה קודם. אישור מהיר מתוך הרשימה
+function renderMgrList(){
+  const tw = document.getElementById('mgrView');
+  tw.innerHTML = "";
+  [{k:"urgent",t:"לפי תאריך"},{k:"emp",t:"לפי עובד"}].forEach(v=>{
+    const b = document.createElement('button');
+    b.className = "tab" + (mgrView===v.k ? " on" : "");
+    b.textContent = v.t; b.onclick = ()=>{ mgrView = v.k; picked.clear(); renderMgrList(); };
+    tw.appendChild(b);
+  });
+  document.querySelector('.selall').style.display = mgrView==="emp" ? "flex" : "none";
+  if(mgrView === "emp") return renderMgrByEmp();
+  paintMgrKinds();
+  document.getElementById('bulkBar').style.display = "none";
+  const list = pending().filter(r=>mgrKind==="all" || r.kind===mgrKind).sort((a,b)=>a.ord-b.ord);
+  const wrap = document.getElementById('mgrRows'); wrap.innerHTML = "";
+  if(!list.length){ wrap.innerHTML = '<div class="empty" style="text-align:center;padding:32px;color:var(--muted)">אין בקשות שממתינות לך. הכול טופל.</div>'; renderDecided(wrap); return; }
+  list.forEach(r=>{
+    const c = document.createElement('div');
+    c.className = "rcard"; c.style.cursor = "pointer";
+    c.innerHTML = `<div class="rh"><span class="rq-kind">${KIND_IC[r.kind]}</span>
+        <b>${r.emp}${r.resent ? '<span class="mtag">נשלח מחדש</span>' : ''}<span style="display:block;font-size:12.5px;color:var(--muted);font-weight:400">${KIND_LBL[r.kind]} · ${r.when}</span></b>
+        <span style="color:#B9C2D4;font-size:18px">‹</span></div>
+      <div class="rw">${r.what}</div>
+      ${r.changes ? `<div class="imp" style="background:#E4F7FB;color:#0A7C90">מה השתנה: ${r.changes}</div>` : ""}
+      <div class="imp ${r.warn?'warn':''}" ${r.changes?'style="margin-top:6px"':''}>${r.impact}</div>
+      ${r.team ? `<div class="imp ${r.teamWarn?'warn':''}" style="margin-top:6px">${r.team}</div>` : ""}
+      <div class="ractions">${r.warn
+        ? `<button class="ra-fix" style="color:var(--orange-600);border-color:#F3DFBC">חריגה — לבדיקה ‹</button>`
+        : `<button class="ra-ok">אישור</button><button class="ra-fix" style="color:var(--navy-800);border-color:var(--line)">פרטים</button>`}</div>`;
+    c.onclick = e=>{
+      if(e.target.closest('.ra-ok')){
+        r.status="ok"; refreshMgrBadge(); renderMgrList();
+        showUndo(`אושר — ${r.emp}, ${KIND_LBL[r.kind]}`, ()=>{ r.status="wait"; refreshMgrBadge(); renderMgrList(); });
+        return;
+      }
+      mgrOnly = r.id; mgrEmp = r.eid; show('mgrEmp');
+    };
+    wrap.appendChild(c);
+  });
+  renderDecided(wrap);
+}
+// טופל לאחרונה — מקופל. כולל בקשות שהעובד ביטל
+function renderDecided(wrap){
+  const done = MGR.filter(r=>r.status!=="wait" && (mgrKind==="all" || r.kind===mgrKind));
+  if(!done.length) return;
+  const det = document.createElement('details');
+  det.className = "decided";
+  det.innerHTML = `<summary><div class="ssec">טופל לאחרונה <span class="n">${done.length}</span></div></summary>`;
+  done.forEach(r=>{
+    const st = REQ_STATUS[r.status];
+    const b = document.createElement('button');
+    b.className = "drow";
+    b.innerHTML = `<span class="ei"><b>${r.emp}</b><span>${KIND_LBL[r.kind]} · ${r.when}</span></span><span class="stat ${st.cls}">${st.t}</span>`;
+    b.onclick = ()=>{ mgrOnly = r.id; mgrEmp = r.eid; show('mgrEmp'); };
+    det.appendChild(b);
+  });
+  wrap.appendChild(det);
+}
+function paintMgrKinds(){
+  // הוצאות מאושרות על ידי חשב השכר בלבד, ולכן אינן מופיעות באזור המנהל
+  const kinds = [{k:"all",t:"הכל"},{k:"attendance",t:"נוכחות"},{k:"absence",t:"היעדרות"}];
+  const kw = document.getElementById('mgrKinds'); kw.innerHTML = "";
+  kinds.forEach(x=>{
+    const b = document.createElement('button');
+    b.className = "kchip" + (mgrKind===x.k ? " on" : "");
+    b.textContent = x.t; b.onclick = ()=>{ mgrKind = x.k; picked.clear(); renderMgrList(); };
+    kw.appendChild(b);
+  });
+}
+// תצוגה משנית: לפי עובד, עם אישור מרוכז (המסך הקיים)
+function renderMgrByEmp(){
+  paintMgrKinds();
+  const list = pending().filter(r=>mgrKind==="all" || r.kind===mgrKind);
+  const byEmp = {};
+  list.forEach(r=>{ (byEmp[r.eid] = byEmp[r.eid] || {emp:r.emp, eid:r.eid, reqs:[]}).reqs.push(r); });
+  const wrap = document.getElementById('mgrRows'); wrap.innerHTML = "";
+  const groups = Object.values(byEmp);
+  if(!groups.length){ wrap.innerHTML = '<div class="empty" style="text-align:center;padding:40px;color:var(--muted)">אין בקשות שממתינות לך בקטגוריה הזו</div>'; }
+  groups.forEach(g=>{
+    const row = document.createElement('div');
+    row.className = "erow";
+    const flag = g.reqs.some(r=>r.warn);
+    const types = [...new Set(g.reqs.map(r=>KIND_LBL[r.kind]))].join(" · ");
+    row.innerHTML = `<button class="chk ${picked.has(g.eid)?'on':''}" aria-label="בחירה"></button>
+      <span class="ei"><b>${g.emp}</b><span>${g.eid} · ${g.reqs.length} ${g.reqs.length===1?"בקשה":"בקשות"} · ${types}</span></span>
+      ${flag ? '<span class="flag">חריגה</span>' : ''}<span style="color:#B9C2D4;font-size:18px">‹</span>`;
+    row.querySelector('.chk').onclick = e=>{ e.stopPropagation();
+      picked.has(g.eid) ? picked.delete(g.eid) : picked.add(g.eid); renderMgrList(); };
+    row.onclick = ()=>{ mgrEmp = g.eid; mgrOnly = null; show('mgrEmp'); };
+    wrap.appendChild(row);
+  });
+  const sel = list.filter(r=>picked.has(r.eid));
+  document.getElementById('bulkBar').style.display = sel.length ? "block" : "none";
+  document.getElementById('bulkBtn').textContent = `אישור ${sel.length} ${sel.length===1?"בקשה":"בקשות"}`;
+  document.getElementById('allChk').style.background = (groups.length && picked.size===groups.length) ? "var(--navy-800)" : "#fff";
+}
+function toggleAll(){
+  const ids = [...new Set(pending().filter(r=>mgrKind==="all"||r.kind===mgrKind).map(r=>r.eid))];
+  if(picked.size === ids.length) picked.clear(); else ids.forEach(i=>picked.add(i));
+  renderMgrList();
+}
+// אישור מרוכז — רק בקשות ללא חריגה. בקשה עם חריגה מאושרת אחת־אחת, אחרי שהמנהל ראה אותה
+function bulkApprove(){
+  const sel = pending().filter(r=>picked.has(r.eid) && (mgrKind==="all"||r.kind===mgrKind));
+  const ok = sel.filter(r=>!r.warn), skip = sel.length - ok.length;
+  ok.forEach(r=>r.status="ok");
+  picked.clear(); renderMgrList(); refreshMgrBadge();
+  toast(`אושרו ${ok.length} בקשות` + (skip ? ` · ${skip} עם חריגה נשארו לבדיקה אחת־אחת` : ""));
+}
+function renderMgrEmp(){
+  const reqs = MGR.filter(r=> mgrOnly ? r.id===mgrOnly : r.eid===mgrEmp);
+  document.getElementById('barTitle').textContent = reqs[0] ? reqs[0].emp : "";
+  document.getElementById('barSub').textContent = reqs[0] ? `מספר עובד ${reqs[0].eid}` : "";
+  const wrap = document.getElementById('mgrReqs'); wrap.innerHTML = "";
+  reqs.forEach(r=>{
+    const c = document.createElement('div');
+    c.className = "rcard";
+    const st = REQ_STATUS[r.status];
+    c.innerHTML = (r.status==="canceled" ? `<div class="mbanner warn" style="margin:0 0 10px">העובד ביטל את הבקשה ב־${r.canceledAt}. אין צורך בפעולה.</div>` : "") +
+      `<div class="rh"><span class="rq-kind">${KIND_IC[r.kind]}</span><b>${KIND_LBL[r.kind]} · ${r.when}${r.resent ? '<span class="mtag">נשלח מחדש</span>' : ''}</b>
+        ${r.status!=="wait" ? `<span class="stat ${st.cls}">${st.t}</span>` : ""}</div>
+      <div class="rw">${r.what}</div>
+      ${r.note ? `<div class="rn">הערת העובד: ${r.note}</div>` : ""}
+      ${r.changes ? `<div class="imp" style="background:#E4F7FB;color:#0A7C90">מה השתנה מאז ההחזרה לתיקון: ${r.changes}</div>` : ""}
+      <div class="imp ${r.warn?'warn':''}" ${r.changes?'style="margin-top:6px"':''}>${r.impact}</div>
+      ${r.team ? `<div class="imp ${r.teamWarn?'warn':''}" style="margin-top:6px">${r.team}</div>` : ""}
+      ${r.att ? `<button class="att" onclick="toast('תצוגת ${r.att}')">▤ ${r.att}</button>` : ""}
+      ${r.status==="wait" ? `<div class="ractions">
+        <button class="ra-ok">אישור</button><button class="ra-fix">החזרה לתיקון</button><button class="ra-rej">דחייה</button></div>`
+        : r.status==="canceled" ? "" : `<div class="rdone">${r.decidedAt ? r.decidedAt + " · " : ""}${r.reasonText ? "סיבה: " + r.reasonText : "ההחלטה נשלחה לעובד"}</div>`}`;
+    if(r.status==="wait"){
+      c.querySelector('.ra-ok').onclick = ()=>{ if(stale(r)) return; r.status="ok"; refreshMgrBadge(); renderMgrEmp(); toast("אושר. העובד יראה זאת ב\"סטטוסים\""); };
+      c.querySelector('.ra-fix').onclick = ()=>{ if(!stale(r)) openDec(r,"fix"); };
+      c.querySelector('.ra-rej').onclick = ()=>{ if(!stale(r)) openDec(r,"rej"); };
+    }
+    wrap.appendChild(c);
+  });
+}
+function openDec(r, kind){
+  dec = {r, kind, code:null};
+  document.getElementById('decTitle').textContent = kind==="fix" ? "החזרה לתיקון" : "דחיית בקשה";
+  document.getElementById('decSub').textContent = kind==="fix"
+    ? "הבקשה תחזור לעובד לתיקון ושליחה מחדש." : "דחייה היא החלטה סופית. העובד יראה את הסיבה.";
+  document.getElementById('decNote').value = "";
+  const body = document.getElementById('decBody'); body.innerHTML = "";
+  DEC_REASONS.filter(x=>x.kind===kind).forEach(x=>{
+    const b = document.createElement('button');
+    b.className = "trow"; b.dataset.code = x.code;
+    b.innerHTML = `<span>${x.text}</span>${x.note ? '<span class="tflag">נדרשת הערה</span>' : ''}`;
+    b.onclick = ()=>{ dec.code = x.code; paintDec(); };
+    body.appendChild(b);
+  });
+  paintDec();
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('decSheet').classList.add('on');
+}
+function paintDec(){
+  if(!dec) return;
+  document.querySelectorAll('#decBody .trow').forEach(b=>b.classList.toggle('on', b.dataset.code===dec.code));
+  const rs = DEC_REASONS.find(x=>x.code===dec.code);
+  const note = document.getElementById('decNote').value.trim();
+  document.getElementById('decNoteLbl').innerHTML = "הערה לעובד" + (rs && rs.note ? ' <span class="req">*</span>' : ' <span style="font-weight:400;color:var(--muted)">(לא חובה)</span>');
+  const btn = document.getElementById('decBtn');
+  btn.textContent = dec.kind==="fix" ? "החזרה לתיקון" : "דחייה";
+  btn.disabled = !rs || (rs.note && note.length < 2);
+}
+function confirmDec(){
+  if(stale(dec.r)){ closeSheet(); return; }
+  const rs = DEC_REASONS.find(x=>x.code===dec.code);
+  dec.r.status = dec.kind; dec.r.reasonText = rs.text;
+  const k = dec.kind; dec = null;
+  closeSheet(); refreshMgrBadge(); renderMgrEmp();
+  toast(k==="fix" ? "הבקשה הוחזרה לעובד לתיקון" : "הבקשה נדחתה");
+}
+// בקשה שהשתנתה אצל העובד בזמן שהמנהל צופה בה — הפעולה נחסמת והמסך מתעדכן
+function stale(r){
+  if(r.status === "wait") return false;
+  toast(r.status === "canceled" ? "העובד ביטל את הבקשה — אין צורך בפעולה" : "הבקשה כבר טופלה");
+  renderMgrEmp(); return true;
+}
+function simulateCancel(){
+  const r = MGR.find(x=>x.id==="R1");
+  if(!r || r.status!=="wait"){ toast("הבקשה כבר אינה ממתינה"); return; }
+  if(!isMgr) setRole(true);
+  // המנהל פתח את הבקשה; בינתיים העובד מבטל אותה
+  mgrOnly = "R1"; mgrEmp = r.eid; show('mgrEmp');
+  setTimeout(()=>{
+    r.status = "canceled"; r.canceledAt = "12:10";
+    refreshMgrBadge(); renderMgrEmp();
+    toast("דנה לוי ביטלה את בקשת החופשה");
+  }, 1200);
+}
+
+/* ---------- מנהל מחליף ---------- */
+let SUB = null, subPick = {who:null, until:null};
+const TEAM = ["דנה לוי","אורי כץ","נועה ברק","יוסי אברהם"];
+function openSub(){
+  subPick = SUB ? {...SUB} : {who:null, until:null};
+  paintSub();
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('subSheet').classList.add('on');
+}
+function paintSub(){
+  const w = document.getElementById('subWho'); w.innerHTML = "";
+  TEAM.forEach(n=>{ const b=document.createElement('button'); b.textContent=n; b.className = subPick.who===n?"on":""; b.onclick=()=>{subPick.who=n;paintSub();}; w.appendChild(b); });
+  const u = document.getElementById('subUntil'); u.innerHTML = "";
+  ["14 באוקטובר","21 באוקטובר","עד שאבטל"].forEach(n=>{ const b=document.createElement('button'); b.textContent=n; b.className = subPick.until===n?"on":""; b.onclick=()=>{subPick.until=n;paintSub();}; u.appendChild(b); });
+  document.getElementById('subSave').disabled = !(subPick.who && subPick.until);
+  document.getElementById('subOff').style.display = SUB ? "block" : "none";
+}
+function saveSub(){ SUB = {...subPick}; closeSheet(); paintSubState(); toast(`בקשות חדשות יועברו ל${SUB.who}`); }
+function clearSub(){ SUB = null; closeSheet(); paintSubState(); toast("ההחלפה בוטלה"); }
+function paintSubState(){
+  const txt = SUB ? `<b>${SUB.who} מחליף/ה אותך ${SUB.until==="עד שאבטל" ? "עד שתבטל" : "עד " + SUB.until}.</b> בקשות חדשות מועברות אליו/ה. בקשות שכבר ממתינות נשארות אצלך.` : "";
+  ["subBanner","subBanner2"].forEach(id=>{ const e=document.getElementById(id); e.style.display = SUB?"block":"none"; e.innerHTML = txt; });
+  document.getElementById('subSub').textContent = SUB
+    ? `${SUB.who} · ${SUB.until==="עד שאבטל" ? "עד ביטול" : "עד " + SUB.until}`
+    : "לא מוגדר. בזמן היעדרות — העברת הבקשות לאישור למחליף";
+}
+
+function refreshMgrBadge(){
+  const n = pending().length, b = document.getElementById('tbMgr');
+  b.textContent = n; b.style.display = n ? "flex" : "none";
+}
+
+/* ---------- ביטול אחרי אישור: 5 שניות ---------- */
+let undoFn = null, undoT;
+function showUndo(msg, fn){
+  undoFn = fn;
+  document.getElementById('undoTxt').textContent = msg;
+  const u = document.getElementById('undo'); u.classList.add('on');
+  clearTimeout(undoT); undoT = setTimeout(()=>{ u.classList.remove('on'); undoFn = null; }, 5000);
+}
+function doUndo(){
+  if(undoFn) undoFn();
+  undoFn = null; document.getElementById('undo').classList.remove('on');
+  toast("האישור בוטל — הבקשה חזרה לרשימה");
+}
+
+/* ---------- תזכורת על יציאה שלא הוחתמה (הדגמה) ---------- */
+function showPush(){ closeSheet(); show('home'); document.getElementById('push').classList.add('on'); }
+function pushNow(){
+  document.getElementById('push').classList.remove('on');
+  const d = days["sep1"]; const i = d.punches.findIndex(p=>p.in && !p.out);
+  if(i>-1){ d.punches[i].out = "18:30"; d.fixed = true; }
+  refreshHome(); toast("היציאה נרשמה ב־18:30");
+}
+function pushLater(){ document.getElementById('push').classList.remove('on'); toast("נזכיר לך מחר בבוקר"); }
+
+/* ---------------- toast ---------------- */
+let tt;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.classList.toggle('top', document.getElementById('sheet').classList.contains('on'));
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(tt); tt = setTimeout(()=>el.classList.remove('on'), 2200);
+}
+setRole(true);
+</script>
+</body>
+</html>
